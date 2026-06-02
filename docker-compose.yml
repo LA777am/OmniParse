@@ -1,0 +1,73 @@
+# ──────────────────────────────────────────────────────────────
+#  Lean OmniParse — Docker Compose (Development)
+#
+#  Services:
+#    api     — FastAPI (uvicorn) on port 8000
+#    worker  — Celery worker consuming from Redis
+#    redis   — Message broker + result backend
+#
+#  MongoDB is hosted on Atlas (not containerized).
+# ──────────────────────────────────────────────────────────────
+
+services:
+  # ── FastAPI Gateway ──
+  api:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: omniparse-api
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend:/app           # Hot-reload during development
+      - upload_data:/app/uploads  # Persistent upload storage
+    env_file:
+      - .env
+    depends_on:
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/api/v1/health')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # ── Celery Background Worker ──
+  worker:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: omniparse-worker
+    command: celery -A app.worker.celery_app:celery_app worker --loglevel=info --concurrency=2
+    volumes:
+      - ./backend:/app           # Hot-reload during development
+      - upload_data:/app/uploads  # Shared access to uploaded PDFs
+    env_file:
+      - .env
+    depends_on:
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+
+  # ── Redis Message Broker ──
+  redis:
+    image: redis:7-alpine
+    container_name: omniparse-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes  # AOF persistence
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  upload_data:
+    driver: local
+  redis_data:
+    driver: local

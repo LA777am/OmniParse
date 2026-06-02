@@ -1,0 +1,90 @@
+"""
+Document endpoints — upload and query.
+
+Sprint 1: Stub routes returning placeholder responses.
+Sprint 2: Synchronous upload + parse pipeline.
+Sprint 3: Async dispatch to Celery.
+Sprint 4: Query endpoint with vector search + LLM.
+"""
+
+from __future__ import annotations
+import aiofiles
+from fastapi import APIRouter, File, UploadFile, Form, HTTPException, status
+from uuid import uuid4
+from datetime import datetime
+from slugify import slugify
+
+from app.config import settings
+from app.database import db
+from app.services.parser import extract_chunks_with_coordinates
+from app.services.embeddings import generate_embeddings_batch
+
+router = APIRouter(prefix="/documents", tags=["Documents"])
+
+@router.post("/upload", status_code=202)
+async def upload_document(
+    file: UploadFile = File(...),
+    document_name: str = Form(None)
+):
+    """Accept a PDF upload and parse it synchronously for Sprint 2."""
+    if file.content_type != "application/pdf":
+        raise HTTPException(status_code=422, detail="Only PDF files are accepted.")
+    
+    if file.size and file.size > settings.max_file_size_bytes:
+        raise HTTPException(status_code=413, detail="File exceeds size limit.")
+    
+    task_id = str(uuid4())
+    document_id = slugify(document_name or file.filename) + f"_{task_id[:8]}"
+    file_path = settings.upload_path / f"{task_id}.pdf"
+    
+    async with aiofiles.open(file_path, "wb") as dest:
+        content = await file.read()
+        await dest.write(content)
+        
+    task_record = {
+        "task_id": task_id,
+        "document_id": document_id,
+        "original_filename": file.filename,
+        "file_path": str(file_path),
+        "status": "processing",
+        "chunk_count": 0,
+        "error_log": None,
+        "created_at": datetime.utcnow(),
+        "updated_at": datetime.utcnow(),
+    }
+    await db.ingestion_tasks.insert_one(task_record)
+    
+    try:
+        # Sprint 2: Synchronous extraction
+        chunks = extract_chunks_with_coordinates(str(file_path), document_id)
+        enriched_chunks = generate_embeddings_batch(chunks)
+        
+        if enriched_chunks:
+            await db.document_chunks.insert_many(enriched_chunks, ordered=False)
+            
+        await db.ingestion_tasks.update_one(
+            {"task_id": task_id},
+            {"$set": {
+                "status": "completed",
+                "chunk_count": len(enriched_chunks),
+                "updated_at": datetime.utcnow(),
+            }}
+        )
+        
+        return {"task_id": task_id, "document_id": document_id, "status": "completed"}
+        
+    except Exception as exc:
+        await db.ingestion_tasks.update_one(
+            {"task_id": task_id},
+            {"$set": {
+                "status": "failed",
+                "error_log": str(exc),
+                "updated_at": datetime.utcnow(),
+            }}
+        )
+        raise HTTPException(status_code=500, detail=f"Parsing failed: {str(exc)}")
+
+@router.post("/{document_id}/query")
+async def query_document(document_id: str):
+    """Semantic search + LLM answer generation. (Sprint 4)"""
+    return {"message": f"Query endpoint for {document_id} — implemented in Sprint 4"}

@@ -1,0 +1,116 @@
+/* ──────────────────────────────────────────────────────────
+   Lean OmniParse — Global Stylesheet
+   Design System: Dark charcoal base + bluish-grey accents
+   ────────────────────────────────────────────────────────── */
+
+/* ── Google Fonts: Inter + JetBrains Mono ── */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ── CSS Custom Properties ── */
+:root {
+  /* Core palette */
+  --bg-primary: #1a1d23;
+  --bg-secondary: #22262e;
+  --bg-tertiary: #2a2f38;
+  --border-subtle: #333a45;
+
+  /* Accent */
+  --accent-primary: #6390bf;
+  --accent-light: #7da8d4;
+  --accent-dark: #4a7199;
+  --accent-glow: rgba(99, 144, 191, 0.15);
+  --accent-border: rgba(99, 144, 191, 0.6);
+
+  /* Text */
+  --text-primary: #e8ecf1;
+  --text-secondary: #9aa3b0;
+  --text-muted: #5a6370;
+
+  /* Semantic */
+  --status-success: #4ade80;
+  --status-pending: #fbbf24;
+  --status-error: #f87171;
+
+  /* Bounding box overlay */
+  --bbox-fill: rgba(99, 144, 191, 0.25);
+  --bbox-stroke: rgba(99, 144, 191, 0.7);
+}
+
+/* ── Base Reset ── */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-size: 16px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  min-height: 100vh;
+  overflow: hidden;
+}
+
+#root {
+  min-height: 100vh;
+}
+
+/* ── Custom Scrollbar ── */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-primary);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border-subtle);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-muted);
+}
+
+/* ── Utility Classes ── */
+@layer components {
+  .glass-panel {
+    background: rgba(34, 38, 46, 0.8);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid var(--border-subtle);
+    border-radius: 12px;
+  }
+
+  .glow-border {
+    box-shadow: 0 0 0 1px var(--accent-border),
+                0 0 20px var(--accent-glow);
+  }
+
+  .text-gradient {
+    background: linear-gradient(135deg, var(--accent-light), var(--accent-primary));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+}
+
+/* ── Selection ── */
+::selection {
+  background: var(--accent-primary);
+  color: var(--bg-primary);
+}
