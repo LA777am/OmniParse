@@ -118,7 +118,7 @@ function App() {
                   </svg>
                 </div>
                 <h2 className="text-xl font-semibold text-text-primary mb-2">
-                  Drop your PDF here
+                  Drop your PDF here!
                 </h2>
                 <p className="text-sm text-text-secondary mb-4">
                   Upload a financial document for spatial analysis
