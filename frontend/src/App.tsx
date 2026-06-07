@@ -118,10 +118,10 @@ function App() {
                   </svg>
                 </div>
                 <h2 className="text-xl font-semibold text-text-primary mb-2">
-                  Drop your PDF here!
+                  Drag & drop your PDF here
                 </h2>
                 <p className="text-sm text-text-secondary mb-4">
-                  Upload a financial document for spatial analysis
+                  Upload your document for deep spatial analysis
                 </p>
                 <p className="text-xs text-text-muted">
                   Supports PDF files up to 50 MB
@@ -178,6 +178,11 @@ function App() {
                                  placeholder:text-text-muted border border-border-subtle
                                  focus:outline-none focus:border-accent-primary/50 focus:ring-1
                                  focus:ring-accent-primary/20 text-sm transition-all"
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          console.log("Send message triggered");
+                        }
+                      }}
                     />
                     <button
                       className="px-4 py-2.5 rounded-lg bg-accent-primary text-white text-sm
