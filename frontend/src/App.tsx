@@ -88,7 +88,7 @@ function App() {
               >
                 <div
                   className="glass-panel p-16 text-center cursor-pointer relative group max-w-xl w-full
-                             hover:bg-bg-secondary/60 transition-all duration-500 overflow-hidden"
+                             hover:bg-bg-secondary/60 transition-all duration-500 overflow-hidden hover-lift"
                   onClick={() => {
                     setAppState("processing");
                     setTimeout(() => setAppState("query"), 3000);
