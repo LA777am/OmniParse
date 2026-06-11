@@ -204,6 +204,7 @@ function App() {
                     <div className="relative flex items-center">
                       <input
                         type="text"
+                        autoFocus
                         placeholder="Ask anything..."
                         className="w-full pl-4 pr-12 py-3 rounded-xl bg-bg-tertiary text-text-primary
                                    placeholder:text-text-muted border border-border-subtle shadow-inner
