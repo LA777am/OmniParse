@@ -209,7 +209,7 @@ function App() {
                         className="w-full pl-4 pr-12 py-3 rounded-xl bg-bg-tertiary text-text-primary
                                    placeholder:text-text-muted border border-border-subtle shadow-inner
                                    focus:outline-none focus:border-accent-primary focus:ring-1
-                                   focus:ring-accent-primary/50 text-sm transition-all"
+                                   focus:ring-accent-primary/50 text-sm transition-all focus-ring-glow"
                         onKeyDown={(e) => {
                           if (e.key === "Enter") console.log("Send message");
                         }}
@@ -218,6 +218,9 @@ function App() {
                         <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
                       </button>
                     </div>
+                    <p className="text-[10px] text-text-muted mt-2 text-center tracking-wide">
+                      Press <kbd className="px-1 py-0.5 rounded bg-bg-tertiary border border-border-subtle text-text-secondary text-[10px] font-mono">Enter</kbd> to send
+                    </p>
                   </div>
                 </div>
 

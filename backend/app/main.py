@@ -13,6 +13,7 @@ All heavy compute runs on Celery workers.
 
 from __future__ import annotations
 
+import time
 from contextlib import asynccontextmanager
 
 import redis.asyncio as aioredis
@@ -25,6 +26,10 @@ from app.database import check_mongodb_health, get_async_client
 from app.routers import documents, tasks
 
 
+# Track server boot time for uptime reporting
+_start_time: float = 0.0
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """
@@ -32,6 +37,9 @@ async def lifespan(app: FastAPI):
     - On startup: verify MongoDB and Redis connectivity.
     - On shutdown: close database connections.
     """
+    global _start_time
+    _start_time = time.time()
+
     # Startup: ensure upload directory exists
     settings.upload_path  # triggers mkdir
 
@@ -87,9 +95,12 @@ async def health_check():
         redis_ok = False
 
     status = "ok" if (mongo_ok and redis_ok) else "degraded"
+    uptime_seconds = round(time.time() - _start_time, 1) if _start_time else 0
 
     return {
         "status": status,
+        "version": app.version,
+        "uptime_seconds": uptime_seconds,
         "mongodb": "connected" if mongo_ok else "disconnected",
         "redis": "connected" if redis_ok else "disconnected",
     }
