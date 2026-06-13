@@ -35,7 +35,7 @@ function App() {
       {/* App Shell content - Elevated over background */}
       <div className="relative z-10 flex flex-col h-full w-full">
         {/* ── Header ── */}
-        <header className="flex items-center justify-between px-6 py-4 border-b border-border-subtle bg-bg-secondary/40 backdrop-blur-xl shadow-sm">
+        <header role="banner" className="flex items-center justify-between px-6 py-4 border-b border-border-subtle bg-bg-secondary/40 backdrop-blur-xl shadow-sm">
           <div className="flex items-center gap-4">
             <div className="relative group">
               <div className="absolute inset-0 bg-accent-primary blur-md opacity-40 group-hover:opacity-70 transition-opacity duration-300 rounded-lg"></div>
@@ -76,7 +76,7 @@ function App() {
         </header>
 
         {/* ── Main Content ── */}
-        <main className="flex-1 overflow-hidden relative">
+        <main role="main" className="flex-1 overflow-hidden relative">
           <AnimatePresence mode="wait">
             {appState === "upload" && (
               <motion.div
