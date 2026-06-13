@@ -219,7 +219,7 @@ function App() {
                           if (e.key === "Enter") console.log("Send message");
                         }}
                       />
-                      <button className="absolute right-2 p-1.5 rounded-lg bg-accent-primary text-white hover:bg-accent-light transition-colors hover:shadow-lg hover:shadow-accent-primary/20">
+                      <button title="Send message" aria-label="Send message" className="absolute right-2 p-1.5 rounded-lg bg-accent-primary text-white hover:bg-accent-light transition-colors hover:shadow-lg hover:shadow-accent-primary/20">
                         <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
                       </button>
                     </div>
