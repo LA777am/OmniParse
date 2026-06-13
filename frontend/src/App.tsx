@@ -238,10 +238,10 @@ function App() {
                         <span className="font-medium">document_analysis.pdf</span>
                      </div>
                      <div className="flex gap-2">
-                        <button className="p-1.5 rounded hover:bg-bg-tertiary text-text-muted hover:text-text-primary transition-colors">
+                        <button aria-label="Zoom in" className="p-1.5 rounded hover:bg-bg-tertiary text-text-muted hover:text-text-primary transition-colors">
                            <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line><line x1="11" y1="8" x2="11" y2="14"></line><line x1="8" y1="11" x2="14" y2="11"></line></svg>
                         </button>
-                        <button className="p-1.5 rounded hover:bg-bg-tertiary text-text-muted hover:text-text-primary transition-colors">
+                        <button aria-label="Zoom out" className="p-1.5 rounded hover:bg-bg-tertiary text-text-muted hover:text-text-primary transition-colors">
                            <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line><line x1="8" y1="11" x2="14" y2="11"></line></svg>
                         </button>
                      </div>
