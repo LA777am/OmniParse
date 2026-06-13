@@ -17,6 +17,7 @@ type AppState = "upload" | "processing" | "query";
 
 function App() {
   const [appState, setAppState] = useState<AppState>("upload");
+  const [isDragging, setIsDragging] = useState(false);
 
   return (
     <div className="h-screen w-screen flex flex-col bg-bg-primary overflow-hidden relative font-sans text-text-primary">
@@ -87,12 +88,16 @@ function App() {
                 className="h-full flex items-center justify-center p-6"
               >
                 <div
-                  className="glass-panel p-16 text-center cursor-pointer relative group max-w-xl w-full
-                             hover:bg-bg-secondary/60 transition-all duration-500 overflow-hidden hover-lift"
+                  className={`glass-panel p-16 text-center cursor-pointer relative group max-w-xl w-full
+                             hover:bg-bg-secondary/60 transition-all duration-500 overflow-hidden hover-lift
+                             ${isDragging ? 'glow-border bg-accent-primary/5 scale-[1.02]' : ''}`}
                   onClick={() => {
                     setAppState("processing");
                     setTimeout(() => setAppState("query"), 3000);
                   }}
+                  onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
+                  onDragLeave={() => setIsDragging(false)}
+                  onDrop={(e) => { e.preventDefault(); setIsDragging(false); setAppState("processing"); setTimeout(() => setAppState("query"), 3000); }}
                 >
                   {/* Subtle hover gradient */}
                   <div className="absolute inset-0 bg-gradient-to-b from-accent-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
@@ -266,6 +271,15 @@ function App() {
                        <div className="w-full h-4 bg-slate-100 rounded mb-3"></div>
                        <div className="w-4/5 h-4 bg-slate-100 rounded mb-3"></div>
                     </div>
+                  </div>
+
+                  {/* PDF Page Indicator Footer */}
+                  <div className="px-4 py-2 border-t border-border-subtle bg-bg-secondary/50 flex items-center justify-between text-xs text-text-muted">
+                    <span>Page <span className="text-text-secondary font-medium">1</span> of <span className="text-text-secondary font-medium">1</span></span>
+                    <span className="flex items-center gap-1.5">
+                      <span className="w-1.5 h-1.5 rounded-full bg-status-success inline-block"></span>
+                      Parsed
+                    </span>
                   </div>
                 </div>
               </motion.div>

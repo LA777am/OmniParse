@@ -45,11 +45,17 @@ export default {
       animation: {
         "pulse-slow": "pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite",
         "fade-in": "fadeIn 0.3s ease-out forwards",
+        "spin-slow": "spin 2.5s linear infinite",
+        "shimmer": "shimmer 1.8s ease-in-out infinite",
       },
       keyframes: {
         fadeIn: {
           "0%": { opacity: "0", transform: "translateY(8px)" },
           "100%": { opacity: "1", transform: "translateY(0)" },
+        },
+        shimmer: {
+          "0%": { backgroundPosition: "-200% 0" },
+          "100%": { backgroundPosition: "200% 0" },
         },
       },
     },
