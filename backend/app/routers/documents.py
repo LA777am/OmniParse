@@ -88,3 +88,43 @@ async def upload_document(
 async def query_document(document_id: str):
     """Semantic search + LLM answer generation. (Sprint 4)"""
     return {"message": f"Query endpoint for {document_id} — implemented in Sprint 4"}
+
+@router.get("/{document_id}/stats")
+async def get_document_stats(document_id: str):
+    """Retrieve document metadata and parsing statistics."""
+    task = await db.ingestion_tasks.find_one({"document_id": document_id})
+    if not task:
+        raise HTTPException(status_code=404, detail="Document not found.")
+
+    pipeline = [
+        {"$match": {"document_id": document_id}},
+        {"$group": {
+            "_id": "$chunk_type",
+            "count": {"$sum": 1},
+            "avg_length": {"$avg": {"$strLenCP": "$chunk_text"}}
+        }}
+    ]
+    chunk_stats_cursor = db.document_chunks.aggregate(pipeline)
+    chunk_stats = await chunk_stats_cursor.to_list(length=None)
+
+    page_pipeline = [
+        {"$match": {"document_id": document_id}},
+        {"$group": {"_id": "$page_number"}}
+    ]
+    pages_cursor = db.document_chunks.aggregate(page_pipeline)
+    pages = await pages_cursor.to_list(length=None)
+
+    return {
+        "document_id": document_id,
+        "original_filename": task.get("original_filename"),
+        "status": task.get("status"),
+        "total_chunks": task.get("chunk_count"),
+        "total_pages": len(pages),
+        "chunk_breakdown": {
+            stat["_id"]: {
+                "count": stat["count"],
+                "avg_length": round(stat["avg_length"], 2) if stat.get("avg_length") is not None else 0
+            } for stat in chunk_stats
+        },
+        "created_at": task.get("created_at"),
+    }
