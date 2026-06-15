@@ -189,10 +189,23 @@ function App() {
                   <h2 className="text-xl font-bold text-text-primary mb-3">
                     Analyzing Document
                   </h2>
-                  <div className="space-y-2 text-sm text-text-secondary">
-                    <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }}>Parsing page geometry...</motion.p>
-                    <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.2 }}>Extracting structural blocks...</motion.p>
-                    <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 2.2 }}>Generating spatial embeddings...</motion.p>
+                  <div className="space-y-3 text-sm text-text-secondary font-medium text-left max-w-[200px] mx-auto mt-6">
+                    <motion.div initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.2 }} className="flex items-center gap-3">
+                      <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ delay: 0.5, type: "spring" }} className="w-5 h-5 rounded-full bg-status-success/20 text-status-success flex items-center justify-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                      </motion.div>
+                      Parsing page geometry...
+                    </motion.div>
+                    <motion.div initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 1.2 }} className="flex items-center gap-3">
+                      <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ delay: 1.5, type: "spring" }} className="w-5 h-5 rounded-full bg-status-success/20 text-status-success flex items-center justify-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                      </motion.div>
+                      Extracting structural blocks...
+                    </motion.div>
+                    <motion.div initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 2.2 }} className="flex items-center gap-3">
+                      <div className="w-5 h-5 rounded-full border-2 border-accent-primary/30 border-t-accent-primary animate-spin"></div>
+                      Generating spatial embeddings...
+                    </motion.div>
                   </div>
                 </div>
               </motion.div>
