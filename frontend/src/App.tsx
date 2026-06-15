@@ -223,9 +223,20 @@ function App() {
                        <span className="text-2xl">✨</span>
                      </div>
                      <p className="text-text-primary font-medium mb-1">How can I help?</p>
-                     <p className="text-xs text-text-muted text-center max-w-[250px]">
+                     <p className="text-xs text-text-muted text-center max-w-[250px] mb-6">
                        Ask about figures, specific sections, or general concepts in the document.
                      </p>
+                     <div className="flex flex-col gap-2 w-full max-w-[280px]">
+                        <button className="text-xs text-left px-4 py-2.5 rounded-xl bg-bg-secondary border border-border-subtle hover:border-accent-primary/50 hover:bg-accent-primary/5 transition-all text-text-secondary hover:text-text-primary">
+                          Summarize this document
+                        </button>
+                        <button className="text-xs text-left px-4 py-2.5 rounded-xl bg-bg-secondary border border-border-subtle hover:border-accent-primary/50 hover:bg-accent-primary/5 transition-all text-text-secondary hover:text-text-primary">
+                          Extract all figures and tables
+                        </button>
+                        <button className="text-xs text-left px-4 py-2.5 rounded-xl bg-bg-secondary border border-border-subtle hover:border-accent-primary/50 hover:bg-accent-primary/5 transition-all text-text-secondary hover:text-text-primary">
+                          What is the main conclusion?
+                        </button>
+                     </div>
                   </div>
 
                   {/* Chat Input */}
