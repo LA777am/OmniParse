@@ -1,5 +1,6 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import type { ChatMessage } from "./types/api";
 
 /**
  * Lean OmniParse — Main Application Shell
@@ -18,6 +19,21 @@ type AppState = "upload" | "processing" | "query";
 function App() {
   const [appState, setAppState] = useState<AppState>("upload");
   const [isDragging, setIsDragging] = useState(false);
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [inputValue, setInputValue] = useState("");
+  const [isTyping, setIsTyping] = useState(false);
+  
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  useEffect(() => {
+    if (appState === "query") {
+      scrollToBottom();
+    }
+  }, [messages, isTyping, appState]);
 
   // Keyboard shortcut to reset to upload state (Ctrl+N / Cmd+N)
   useEffect(() => {
@@ -25,11 +41,51 @@ function App() {
       if ((e.ctrlKey || e.metaKey) && e.key === 'n') {
         e.preventDefault();
         setAppState("upload");
+        setMessages([]); // Reset chat messages
       }
     };
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, []);
+
+  const handleSendMessage = (text: string) => {
+    if (!text.trim()) return;
+
+    const userMsg: ChatMessage = {
+      id: Math.random().toString(36).substring(7),
+      role: "user",
+      content: text,
+      timestamp: new Date()
+    };
+
+    setMessages(prev => [...prev, userMsg]);
+    setInputValue("");
+    setIsTyping(true);
+
+    setTimeout(() => {
+      let aiContent = "";
+      const query = text.toLowerCase();
+      if (query.includes("summar")) {
+        aiContent = "**Document Summary:**\n\nThis document outlines the operational and financial metrics for the current fiscal year. Key findings include:\n• **Revenue growth:** 14% year-over-year increase.\n• **Operational efficiency:** R&D cost optimization through automated spatial pipelines.\n• **Future Outlook:** Expansion of RAG-based search platform across all document databases.";
+      } else if (query.includes("figure") || query.includes("table") || query.includes("extract")) {
+        aiContent = "**Extracted Elements:**\n\n1. **Figure 1.0 (Page 1):** Operating Expenses comparison chart, highlighting a balanced distribution of research & development vs marketing spend.\n2. **Table 2.1 (Page 2):** Breakdown of localized spatial embedding sizes and latency profiles.";
+      } else if (query.includes("conclusion")) {
+        aiContent = "**Main Conclusion:**\n\nIntegrating spatial geometry parsing (using libraries like `pdfplumber` or `OmniParse`) with vector embeddings significantly boosts search recall and context grounding in complex documents compared to naive text chunking alone.";
+      } else {
+        aiContent = `I've received your query about this document: "${text}". Based on the spatial indexing, this question references key segments of the text. Let me know if you would like me to extract specific tables or figures from this page!`;
+      }
+
+      const assistantMsg: ChatMessage = {
+        id: Math.random().toString(36).substring(7),
+        role: "assistant",
+        content: aiContent,
+        timestamp: new Date()
+      };
+
+      setMessages(prev => [...prev, assistantMsg]);
+      setIsTyping(false);
+    }, 1200);
+  };
 
   return (
     <div className="h-screen w-screen flex flex-col bg-bg-primary overflow-hidden relative font-sans text-text-primary">
@@ -231,25 +287,78 @@ function App() {
                   </div>
                   
                   {/* Chat Messages Area */}
-                  <div className="flex-1 p-5 overflow-y-auto flex flex-col items-center justify-center bg-gradient-to-b from-transparent to-bg-secondary/20">
-                     <div className="w-16 h-16 rounded-full bg-bg-tertiary flex items-center justify-center mb-4 border border-border-subtle shadow-inner">
-                       <span className="text-2xl">✨</span>
-                     </div>
-                     <p className="text-text-primary font-medium mb-1">How can I help?</p>
-                     <p className="text-xs text-text-muted text-center max-w-[250px] mb-6">
-                       Ask about figures, specific sections, or general concepts in the document.
-                     </p>
-                     <div className="flex flex-col gap-2 w-full max-w-[280px]">
-                        <button className="text-xs text-left px-4 py-2.5 rounded-xl bg-bg-secondary border border-border-subtle hover:border-accent-primary/50 hover:bg-accent-primary/5 transition-all text-text-secondary hover:text-text-primary">
-                          Summarize this document
-                        </button>
-                        <button className="text-xs text-left px-4 py-2.5 rounded-xl bg-bg-secondary border border-border-subtle hover:border-accent-primary/50 hover:bg-accent-primary/5 transition-all text-text-secondary hover:text-text-primary">
-                          Extract all figures and tables
-                        </button>
-                        <button className="text-xs text-left px-4 py-2.5 rounded-xl bg-bg-secondary border border-border-subtle hover:border-accent-primary/50 hover:bg-accent-primary/5 transition-all text-text-secondary hover:text-text-primary">
-                          What is the main conclusion?
-                        </button>
-                     </div>
+                  <div className="flex-1 p-5 overflow-y-auto flex flex-col bg-gradient-to-b from-transparent to-bg-secondary/20">
+                    {messages.length === 0 ? (
+                      <div className="flex-1 flex flex-col items-center justify-center text-center">
+                         <div className="w-16 h-16 rounded-full bg-bg-tertiary flex items-center justify-center mb-4 border border-border-subtle shadow-inner">
+                           <span className="text-2xl">✨</span>
+                         </div>
+                         <p className="text-text-primary font-medium mb-1">How can I help?</p>
+                         <p className="text-xs text-text-muted text-center max-w-[250px] mb-6">
+                           Ask about figures, specific sections, or general concepts in the document.
+                         </p>
+                         <div className="flex flex-col gap-2 w-full max-w-[280px]">
+                            <button 
+                              onClick={() => handleSendMessage("Summarize this document")}
+                              className="text-xs text-left px-4 py-2.5 rounded-xl bg-bg-secondary border border-border-subtle hover:border-accent-primary/50 hover:bg-accent-primary/5 transition-all text-text-secondary hover:text-text-primary"
+                            >
+                              Summarize this document
+                            </button>
+                            <button 
+                              onClick={() => handleSendMessage("Extract all figures and tables")}
+                              className="text-xs text-left px-4 py-2.5 rounded-xl bg-bg-secondary border border-border-subtle hover:border-accent-primary/50 hover:bg-accent-primary/5 transition-all text-text-secondary hover:text-text-primary"
+                            >
+                              Extract all figures and tables
+                            </button>
+                            <button 
+                              onClick={() => handleSendMessage("What is the main conclusion?")}
+                              className="text-xs text-left px-4 py-2.5 rounded-xl bg-bg-secondary border border-border-subtle hover:border-accent-primary/50 hover:bg-accent-primary/5 transition-all text-text-secondary hover:text-text-primary"
+                            >
+                              What is the main conclusion?
+                            </button>
+                         </div>
+                      </div>
+                    ) : (
+                      <div className="flex flex-col gap-4 flex-1">
+                        {messages.map((msg) => (
+                          <motion.div
+                            key={msg.id}
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            className={`flex flex-col max-w-[85%] ${
+                              msg.role === "user" ? "self-end items-end" : "self-start items-start"
+                            }`}
+                          >
+                            <div
+                              className={`px-4 py-2.5 rounded-2xl text-sm leading-relaxed ${
+                                msg.role === "user"
+                                  ? "bg-accent-primary/20 border border-accent-primary/40 text-text-primary rounded-tr-none"
+                                  : "bg-bg-tertiary/75 border border-border-subtle text-text-primary rounded-tl-none whitespace-pre-line"
+                              }`}
+                            >
+                              {msg.content}
+                            </div>
+                            <span className="text-[10px] text-text-muted mt-1 px-1">
+                              {msg.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                            </span>
+                          </motion.div>
+                        ))}
+                        {isTyping && (
+                          <motion.div
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            className="flex flex-col max-w-[85%] self-start items-start"
+                          >
+                            <div className="px-4 py-3 rounded-2xl rounded-tl-none bg-bg-tertiary/75 border border-border-subtle flex gap-1 items-center">
+                              <span className="w-2 h-2 rounded-full bg-accent-light animate-bounce" style={{ animationDelay: "0ms" }} />
+                              <span className="w-2 h-2 rounded-full bg-accent-light animate-bounce" style={{ animationDelay: "150ms" }} />
+                              <span className="w-2 h-2 rounded-full bg-accent-light animate-bounce" style={{ animationDelay: "300ms" }} />
+                            </div>
+                          </motion.div>
+                        )}
+                        <div ref={messagesEndRef} />
+                      </div>
+                    )}
                   </div>
 
                   {/* Chat Input */}
@@ -258,16 +367,23 @@ function App() {
                       <input
                         type="text"
                         autoFocus
+                        value={inputValue}
+                        onChange={(e) => setInputValue(e.target.value)}
                         placeholder="Ask anything..."
                         className="w-full pl-4 pr-12 py-3 rounded-xl bg-bg-tertiary text-text-primary
                                    placeholder:text-text-muted border border-border-subtle shadow-inner
                                    focus:outline-none focus:border-accent-primary focus:ring-1
                                    focus:ring-accent-primary/50 text-sm transition-all focus-ring-glow"
                         onKeyDown={(e) => {
-                          if (e.key === "Enter") console.log("Send message");
+                          if (e.key === "Enter") handleSendMessage(inputValue);
                         }}
                       />
-                      <button title="Send message" aria-label="Send message" className="absolute right-2 p-1.5 rounded-lg bg-accent-primary text-white hover:bg-accent-light transition-colors hover:shadow-lg hover:shadow-accent-primary/20">
+                      <button 
+                        onClick={() => handleSendMessage(inputValue)}
+                        title="Send message" 
+                        aria-label="Send message" 
+                        className="absolute right-2 p-1.5 rounded-lg bg-accent-primary text-white hover:bg-accent-light transition-colors hover:shadow-lg hover:shadow-accent-primary/20"
+                      >
                         <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
                       </button>
                     </div>
