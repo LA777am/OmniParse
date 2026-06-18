@@ -22,6 +22,14 @@ function App() {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [inputValue, setInputValue] = useState("");
   const [isTyping, setIsTyping] = useState(false);
+  const [zoomLevel, setZoomLevel] = useState(1.0);
+  const [selectedBox, setSelectedBox] = useState<{
+    id: string;
+    label: string;
+    coordinates: string;
+    dimensions: string;
+    description: string;
+  } | null>(null);
   
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -42,6 +50,8 @@ function App() {
         e.preventDefault();
         setAppState("upload");
         setMessages([]); // Reset chat messages
+        setZoomLevel(1.0);
+        setSelectedBox(null);
       }
     };
     window.addEventListener("keydown", handleKeyDown);
@@ -139,7 +149,12 @@ function App() {
                 <motion.button 
                   initial={{ opacity: 0, scale: 0.9 }} 
                   animate={{ opacity: 1, scale: 1 }} 
-                  onClick={() => setAppState("upload")}
+                  onClick={() => {
+                    setAppState("upload");
+                    setMessages([]);
+                    setZoomLevel(1.0);
+                    setSelectedBox(null);
+                  }}
                   title="New Document (Cmd/Ctrl + N)"
                   className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-bg-tertiary border border-border-subtle text-text-secondary hover:text-text-primary hover:border-accent-primary transition-all text-xs font-medium"
                 >
@@ -401,44 +416,176 @@ function App() {
                         <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
                         <span className="font-medium">document_analysis.pdf</span>
                      </div>
-                     <div className="flex gap-2">
-                        <button aria-label="Zoom in" className="p-1.5 rounded hover:bg-bg-tertiary text-text-muted hover:text-text-primary transition-colors">
-                           <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line><line x1="11" y1="8" x2="11" y2="14"></line><line x1="8" y1="11" x2="14" y2="11"></line></svg>
-                        </button>
-                        <button aria-label="Zoom out" className="p-1.5 rounded hover:bg-bg-tertiary text-text-muted hover:text-text-primary transition-colors">
+                     <div className="flex items-center gap-2">
+                        <span className="text-xs text-text-muted font-mono bg-bg-tertiary px-2.5 py-1 rounded-md border border-border-subtle select-none">
+                           {Math.round(zoomLevel * 100)}%
+                        </span>
+                        <button 
+                          onClick={() => setZoomLevel(prev => Math.max(prev - 0.1, 0.5))}
+                          aria-label="Zoom out" 
+                          className="p-1.5 rounded hover:bg-bg-tertiary text-text-muted hover:text-text-primary transition-colors border border-border-subtle"
+                        >
                            <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line><line x1="8" y1="11" x2="14" y2="11"></line></svg>
                         </button>
+                        <button 
+                          onClick={() => setZoomLevel(prev => Math.min(prev + 0.1, 2.0))}
+                          aria-label="Zoom in" 
+                          className="p-1.5 rounded hover:bg-bg-tertiary text-text-muted hover:text-text-primary transition-colors border border-border-subtle"
+                        >
+                           <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line><line x1="11" y1="8" x2="11" y2="14"></line><line x1="8" y1="11" x2="14" y2="11"></line></svg>
+                        </button>
+                        {zoomLevel !== 1.0 && (
+                          <button 
+                            onClick={() => setZoomLevel(1.0)}
+                            className="text-[10px] px-2.5 py-1 rounded bg-bg-tertiary border border-border-subtle text-text-secondary hover:text-text-primary transition-colors font-medium"
+                          >
+                            Reset
+                          </button>
+                        )}
                      </div>
                   </div>
                   
                   {/* PDF Canvas Area */}
-                  <div className="flex-1 bg-black/20 flex items-center justify-center relative overflow-hidden">
+                  <div className="flex-1 bg-black/20 flex items-center justify-center relative overflow-auto p-8">
                     {/* Background grid for canvas */}
-                    <div className="absolute inset-0" style={{ backgroundImage: 'linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px)', backgroundSize: '20px 20px' }}></div>
+                    <div className="absolute inset-0" style={{ backgroundImage: 'linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px)', backgroundSize: '20px 20px' }} />
                     
                     {/* Placeholder Document Page */}
-                    <div className="relative w-[500px] h-[700px] bg-white rounded shadow-2xl flex flex-col text-slate-800 p-8 transform transition-transform hover:scale-[1.02] duration-500">
-                       <div className="w-3/4 h-8 bg-slate-200 rounded mb-6"></div>
-                       <div className="w-full h-4 bg-slate-100 rounded mb-3"></div>
-                       <div className="w-full h-4 bg-slate-100 rounded mb-3"></div>
-                       <div className="w-5/6 h-4 bg-slate-100 rounded mb-8"></div>
+                    <div 
+                      style={{ 
+                        width: `${500 * zoomLevel}px`, 
+                        height: `${700 * zoomLevel}px`,
+                        padding: `${32 * zoomLevel}px`
+                      }}
+                      className="relative bg-white rounded shadow-2xl flex flex-col text-slate-800 transform transition-all duration-300 select-none"
+                    >
+                       <div 
+                         style={{ 
+                           height: `${32 * zoomLevel}px`,
+                           marginBottom: `${24 * zoomLevel}px`
+                         }}
+                         className="w-3/4 bg-slate-200 rounded" 
+                       />
+                       <div 
+                         style={{ 
+                           height: `${16 * zoomLevel}px`,
+                           marginBottom: `${12 * zoomLevel}px`
+                         }}
+                         className="w-full bg-slate-100 rounded" 
+                       />
+                       <div 
+                         style={{ 
+                           height: `${16 * zoomLevel}px`,
+                           marginBottom: `${12 * zoomLevel}px`
+                         }}
+                         className="w-full bg-slate-100 rounded" 
+                       />
+                       <div 
+                         style={{ 
+                           height: `${16 * zoomLevel}px`,
+                           marginBottom: `${32 * zoomLevel}px`
+                         }}
+                         className="w-5/6 bg-slate-100 rounded" 
+                       />
                        
-                       <div className="w-full h-48 bg-slate-100 rounded mb-8 relative group border border-slate-200 flex items-center justify-center cursor-crosshair hover:bg-slate-50 transition-colors">
-                          <span className="text-slate-400 font-medium">Figure 1.0</span>
+                       <div 
+                         onClick={() => setSelectedBox({
+                           id: "fig-1",
+                           label: "chart_figure",
+                           coordinates: "x0: 120.5, y0: 450.2, x1: 300.0, y1: 465.8",
+                           dimensions: "450px x 192px",
+                           description: "Operating Expenses Comparison Chart. Displays historical R&D spend and marketing campaigns."
+                         })}
+                         style={{ 
+                           height: `${192 * zoomLevel}px`,
+                           marginBottom: `${32 * zoomLevel}px`
+                         }}
+                         className="w-full bg-slate-100 rounded relative group border border-slate-200 flex items-center justify-center cursor-crosshair hover:bg-slate-50 transition-colors"
+                       >
+                          <span 
+                            style={{ fontSize: `${14 * zoomLevel}px` }}
+                            className="text-slate-400 font-medium"
+                          >
+                            Figure 1.0
+                          </span>
                           {/* Simulated bounding box */}
-                          <div className="absolute inset-0 bg-[rgba(99,144,191,0.15)] border-2 border-[rgba(99,144,191,0.6)] rounded opacity-0 group-hover:opacity-100 transition-opacity flex items-start p-2">
-                             <span className="bg-[rgba(99,144,191,0.9)] text-white text-[10px] font-bold px-1.5 py-0.5 rounded shadow-md">chart_figure</span>
+                          <div className={`absolute inset-0 rounded transition-all flex items-start p-2 pointer-events-none
+                            ${selectedBox?.id === "fig-1" 
+                              ? "bg-[rgba(99,144,191,0.25)] border-2 border-[rgba(99,144,191,0.9)] opacity-100 shadow-[0_0_15px_rgba(99,144,191,0.4)]" 
+                              : "bg-[rgba(99,144,191,0.15)] border-2 border-[rgba(99,144,191,0.6)] opacity-0 group-hover:opacity-100"
+                            }`}
+                          >
+                             <span 
+                               style={{ fontSize: `${10 * zoomLevel}px` }}
+                               className="bg-[rgba(99,144,191,0.9)] text-white font-bold px-1.5 py-0.5 rounded shadow-md"
+                             >
+                               chart_figure
+                             </span>
                           </div>
                        </div>
                        
-                       <div className="w-full h-4 bg-slate-100 rounded mb-3"></div>
-                       <div className="w-full h-4 bg-slate-100 rounded mb-3"></div>
-                       <div className="w-4/5 h-4 bg-slate-100 rounded mb-3"></div>
+                       <div 
+                         style={{ 
+                           height: `${16 * zoomLevel}px`,
+                           marginBottom: `${12 * zoomLevel}px`
+                         }}
+                         className="w-full bg-slate-100 rounded" 
+                       />
+                       <div 
+                         style={{ 
+                           height: `${16 * zoomLevel}px`,
+                           marginBottom: `${12 * zoomLevel}px`
+                         }}
+                         className="w-full bg-slate-100 rounded" 
+                       />
+                       <div 
+                         style={{ 
+                           height: `${16 * zoomLevel}px`,
+                           marginBottom: `${12 * zoomLevel}px`
+                         }}
+                         className="w-4/5 bg-slate-100 rounded" 
+                       />
                     </div>
                   </div>
 
+                  {/* Bounding Box Inspection Panel */}
+                  <AnimatePresence>
+                    {selectedBox && (
+                      <motion.div 
+                        initial={{ y: 50, opacity: 0 }}
+                        animate={{ y: 0, opacity: 1 }}
+                        exit={{ y: 50, opacity: 0 }}
+                        className="absolute bottom-12 left-4 right-4 p-4 rounded-xl bg-bg-secondary/95 border border-border-subtle backdrop-blur-xl shadow-2xl z-20 flex flex-col md:flex-row md:items-center justify-between gap-4"
+                      >
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2.5 mb-1.5">
+                            <span className="px-2 py-0.5 text-[10px] font-bold tracking-wider uppercase bg-accent-primary/20 text-accent-light border border-accent-primary/30 rounded-md">
+                              {selectedBox.label}
+                            </span>
+                            <span className="text-xs text-text-muted">
+                              ID: {selectedBox.id}
+                            </span>
+                          </div>
+                          <h4 className="text-sm font-semibold text-text-primary mb-1">
+                            {selectedBox.description}
+                          </h4>
+                          <div className="flex flex-wrap gap-x-4 gap-y-1 text-[11px] text-text-secondary font-mono">
+                            <span>Coords: <span className="text-accent-light">{selectedBox.coordinates}</span></span>
+                            <span>Size: <span className="text-accent-light">{selectedBox.dimensions}</span></span>
+                          </div>
+                        </div>
+                        <button 
+                          onClick={() => setSelectedBox(null)}
+                          className="px-3 py-1.5 text-xs font-medium bg-bg-tertiary border border-border-subtle hover:border-accent-primary/50 text-text-secondary hover:text-text-primary rounded-lg transition-all"
+                        >
+                          Clear Selection
+                        </button>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+
                   {/* PDF Page Indicator Footer */}
-                  <div className="px-4 py-2 border-t border-border-subtle bg-bg-secondary/50 flex items-center justify-between text-xs text-text-muted">
+                  <div className="px-4 py-2 border-t border-border-subtle bg-bg-secondary/50 flex items-center justify-between text-xs text-text-muted z-10">
                     <span>Page <span className="text-text-secondary font-medium">1</span> of <span className="text-text-secondary font-medium">1</span></span>
                     <span className="flex items-center gap-1.5">
                       <span className="w-1.5 h-1.5 rounded-full bg-status-success inline-block"></span>
