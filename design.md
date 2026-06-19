@@ -6,12 +6,12 @@ We will strictly enforce a "Dark Mode Glassmorphic" aesthetic.
 
 ## 1. Color Palette
 
-- **Background:** Deep space/midnight gradient. It should not be flat black. Use a radial or linear gradient ranging from extremely dark blue `#0A0F1C` to black `#000000`.
-- **Primary Accent:** Electric Cyan (`#00F0FF`) and Neon Purple (`#8A2BE2`) used for glowing borders, primary buttons, and active states.
-- **Glass Panels (Surface/Cards):** Panels must not be solid. They should use a transparent white/blue tint (e.g., `rgba(255, 255, 255, 0.03)` or `rgba(0, 240, 255, 0.05)`) with a strong backdrop blur (`backdrop-filter: blur(16px)`).
-- **Text (Primary):** Pure White (`#FFFFFF`) or slightly off-white (`#F8F9FA`).
-- **Text (Secondary):** Light Gray (`#A0AEC0`) or Muted Cyan (`#82A0B5`).
-- **Borders:** Extremely subtle translucent borders `rgba(255, 255, 255, 0.1)`. For active/hover states, borders should transition to a glowing electric cyan `rgba(0, 240, 255, 0.4)`.
+- **Background:** Monochromatic charcoal gradient. It should not be flat black. Use a subtle radial or linear gradient ranging from dark charcoal `#121212` to deep black `#000000`.
+- **Primary Accent:** Crisp White (`#FFFFFF`) and Silver/Platinum (`#D1D5DB`) used for sharp borders, primary buttons, and active states.
+- **Glass Panels (Surface/Cards):** Panels must not be solid. They should use a transparent pure white tint (e.g., `rgba(255, 255, 255, 0.04)`) with a strong backdrop blur (`backdrop-filter: blur(24px)`).
+- **Text (Primary):** Pure White (`#FFFFFF`) or very light gray (`#F3F4F6`).
+- **Text (Secondary):** Medium Gray (`#9CA3AF`).
+- **Borders:** Extremely subtle translucent borders `rgba(255, 255, 255, 0.08)`. For active/hover states, borders should transition to a brighter white glow `rgba(255, 255, 255, 0.3)`.
 
 ## 2. Typography
 
@@ -24,22 +24,22 @@ We will strictly enforce a "Dark Mode Glassmorphic" aesthetic.
 ### 3.1. Glassmorphic Panels (The "Container")
 Every major section (upload box, chat window, stat tracker) MUST sit inside a Glassmorphic Panel.
 - **Rules:** 
-  - `background: rgba(10, 15, 28, 0.6);`
+  - `background: rgba(18, 18, 18, 0.6);`
   - `backdrop-filter: blur(20px);`
   - `border: 1px solid rgba(255, 255, 255, 0.08);`
   - `border-radius: 16px;`
   - `box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);`
 
 ### 3.2. Drag-and-Drop Upload Zone
-- **Idle State:** A dashed border with low opacity. A central icon (like a document or upload cloud) glowing softly.
-- **Drag-Active State:** The border becomes solid and pulses Electric Cyan. The inner background gets slightly brighter.
-- **Uploading State:** A smooth CSS loading spinner or horizontal progress bar filling up with a cyan-to-purple gradient.
+- **Idle State:** A dashed border with low opacity. A central icon (like a document or upload cloud) glowing softly in white.
+- **Drag-Active State:** The border becomes solid and pulses bright white. The inner background gets slightly brighter.
+- **Uploading State:** A smooth CSS loading spinner or horizontal progress bar filling up with a white-to-silver gradient.
 
 ### 3.3. RAG Chat Interface
-- **User Messages:** Align right. Bubble is a solid, subtle accent color (e.g., `rgba(138, 43, 226, 0.3)`).
+- **User Messages:** Align right. Bubble is a solid, subtle accent color (e.g., `rgba(255, 255, 255, 0.15)`).
 - **AI Responses:** Align left. Bubble is standard glassmorphism. Text must be highly readable.
 - **Sources/Context Pills:** Below the AI response, display the retrieved document chunks as small, pill-shaped tags (`[Page 1]`, `[Score: 0.89]`). These pills should have a 1px border and hover effect.
-- **Input Field:** A floating glass pill at the bottom of the chat. No hard edges. Glows cyan when focused.
+- **Input Field:** A floating glass pill at the bottom of the chat. No hard edges. Glows white when focused.
 
 ## 4. Micro-Interactions & Animation
 

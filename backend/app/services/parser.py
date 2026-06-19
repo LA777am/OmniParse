@@ -7,9 +7,13 @@ def _compute_cell_bbox(table_bbox, cells, row_idx, col_idx):
     cells is a list of rows, each containing bounding box coords for the cell.
     """
     try:
-        return cells[row_idx][col_idx]
-    except (IndexError, TypeError):
-        return table_bbox
+        if cells and row_idx < len(cells) and cells[row_idx] and col_idx < len(cells[row_idx]):
+            cell = cells[row_idx][col_idx]
+            if isinstance(cell, (tuple, list)) and len(cell) == 4:
+                return cell
+    except Exception:
+        pass
+    return table_bbox
 
 def _word_in_any_table(word, table_bboxes):
     """Checks if a word's bounding box falls inside any table bounding box."""

@@ -58,12 +58,12 @@ function ElegantShape({
                 <div
                     className={cn(
                         "absolute inset-0 rounded-full",
-                        "bg-gradient-to-r to-transparent",
+                        "bg-gradient-to-r",
                         gradient,
-                        "backdrop-blur-[2px] border-2 border-white/[0.15]",
-                        "shadow-[0_8px_32px_0_rgba(255,255,255,0.1)]",
+                        "backdrop-blur-[2px] border border-white/[0.18]",
+                        "shadow-[0_8px_32px_0_rgba(255,255,255,0.08)]",
                         "after:absolute after:inset-0 after:rounded-full",
-                        "after:bg-[radial-gradient(circle_at_50%_50%,rgba(255,255,255,0.2),transparent_70%)]"
+                        "after:bg-[radial-gradient(circle_at_50%_50%,rgba(255,255,255,0.15),transparent_70%)]"
                     )}
                 />
             </motion.div>
@@ -129,48 +129,53 @@ function HeroGeometric({
                     transition: "transform 0.4s ease-out",
                 }}
             >
+                {/* Shape 1 — Violet → Fuchsia (top-left large) */}
                 <ElegantShape
                     delay={0.3}
                     width={800}
                     height={180}
                     rotate={12}
-                    gradient="from-indigo-500/[0.25]"
+                    gradient="from-violet-600/[0.55] via-fuchsia-500/[0.35] to-transparent"
                     className="left-[-12%] md:left-[-6%] top-[10%] md:top-[15%]"
                 />
 
+                {/* Shape 2 — Rose → Orange (bottom-right large) */}
                 <ElegantShape
                     delay={0.5}
                     width={700}
                     height={160}
                     rotate={-15}
-                    gradient="from-rose-500/[0.25]"
+                    gradient="from-rose-500/[0.55] via-orange-400/[0.30] to-transparent"
                     className="right-[-8%] md:right-[-2%] top-[65%] md:top-[70%]"
                 />
 
+                {/* Shape 3 — Cyan → Blue (bottom-left medium) */}
                 <ElegantShape
                     delay={0.4}
                     width={450}
                     height={110}
                     rotate={-8}
-                    gradient="from-violet-500/[0.25]"
+                    gradient="from-cyan-400/[0.50] via-blue-500/[0.28] to-transparent"
                     className="left-[2%] md:left-[6%] bottom-[2%] md:bottom-[6%]"
                 />
 
+                {/* Shape 4 — Emerald → Teal (top-right small) */}
                 <ElegantShape
                     delay={0.6}
                     width={300}
                     height={80}
                     rotate={20}
-                    gradient="from-amber-500/[0.25]"
+                    gradient="from-emerald-400/[0.50] via-teal-400/[0.28] to-transparent"
                     className="right-[10%] md:right-[15%] top-[5%] md:top-[8%]"
                 />
 
+                {/* Shape 5 — Amber → Pink (top-center tiny) */}
                 <ElegantShape
                     delay={0.7}
                     width={220}
                     height={60}
                     rotate={-25}
-                    gradient="from-cyan-500/[0.25]"
+                    gradient="from-amber-400/[0.55] via-pink-400/[0.30] to-transparent"
                     className="left-[15%] md:left-[20%] top-[2%] md:top-[5%]"
                 />
             </div>

@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>OmniParse | Upload Document</title>
+<!-- Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&family=Outfit:wght@600;700&family=JetBrains+Mono&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&family=JetBrains+Mono:wght@100..900&family=Outfit:wght@100..900&display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-error-container": "#ffdad6",
+                    "glass-border": "rgba(255, 255, 255, 0.08)",
+                    "surface-container-lowest": "#0e0e0e",
+                    "on-tertiary-container": "#636565",
+                    "error": "#ffb4ab",
+                    "inverse-on-surface": "#313030",
+                    "secondary-fixed": "#dfe3e9",
+                    "on-tertiary": "#2f3131",
+                    "tertiary": "#ffffff",
+                    "tertiary-fixed": "#e2e2e2",
+                    "glass-border-active": "rgba(255, 255, 255, 0.3)",
+                    "tertiary-fixed-dim": "#c6c6c7",
+                    "surface-container-high": "#2a2a2a",
+                    "surface-container-highest": "#353434",
+                    "glass-surface": "rgba(255, 255, 255, 0.04)",
+                    "text-secondary": "#9CA3AF",
+                    "secondary-fixed-dim": "#c3c7cd",
+                    "on-secondary-fixed": "#171c20",
+                    "outline": "#8e9192",
+                    "bg-charcoal": "#121212",
+                    "outline-variant": "#444748",
+                    "on-secondary-container": "#b4b9bf",
+                    "surface-dim": "#141313",
+                    "surface-container-low": "#1c1b1b",
+                    "user-bubble": "rgba(255, 255, 255, 0.15)",
+                    "tertiary-container": "#e2e2e2",
+                    "surface-bright": "#3a3939",
+                    "on-primary-container": "#636565",
+                    "on-secondary-fixed-variant": "#43474c",
+                    "surface-variant": "#353434",
+                    "inverse-primary": "#5d5f5f",
+                    "error-container": "#93000a",
+                    "on-surface-variant": "#c4c7c8",
+                    "on-secondary": "#2c3136",
+                    "primary-fixed-dim": "#c6c6c7",
+                    "on-primary": "#2f3131",
+                    "on-primary-fixed-variant": "#454747",
+                    "primary-fixed": "#e2e2e2",
+                    "on-tertiary-fixed-variant": "#454747",
+                    "background": "#141313",
+                    "secondary-container": "#454a4f",
+                    "surface-container": "#201f1f",
+                    "primary-container": "#e2e2e2",
+                    "surface": "#141313",
+                    "on-surface": "#e5e2e1",
+                    "on-tertiary-fixed": "#1a1c1c",
+                    "on-error": "#690005",
+                    "on-background": "#e5e2e1",
+                    "inverse-surface": "#e5e2e1",
+                    "surface-tint": "#c6c6c7",
+                    "bg-black": "#000000",
+                    "primary": "#ffffff",
+                    "secondary": "#c3c7cd",
+                    "on-primary-fixed": "#1a1c1c"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "section-margin": "2rem",
+                    "glass-blur": "24px",
+                    "element-gap": "1rem",
+                    "container-padding": "2rem"
+            },
+            "fontFamily": {
+                    "body-md": ["Inter"],
+                    "body-lg": ["Inter"],
+                    "code-sm": ["JetBrains Mono"],
+                    "headline-md": ["Outfit"],
+                    "headline-lg": ["Outfit"],
+                    "label-md": ["JetBrains Mono"],
+                    "display-lg": ["Outfit"]
+            },
+            "fontSize": {
+                    "body-md": ["16px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                    "body-lg": ["18px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                    "code-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                    "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                    "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                    "label-md": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "500"}],
+                    "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+        }
+        body {
+            background: radial-gradient(circle at center, #121212 0%, #000000 100%);
+            min-height: 100vh;
+            overflow: hidden;
+        }
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.04);
+            backdrop-filter: blur(24px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        }
+        .drop-zone {
+            border: 2px dashed rgba(255, 255, 255, 0.1);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .drop-zone:hover {
+            border: 2px solid rgba(255, 255, 255, 0.5);
+            background: rgba(255, 255, 255, 0.02);
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.05);
+        }
+        .glow-icon {
+            text-shadow: 0 0 15px rgba(255, 255, 255, 0.3);
+        }
+        @keyframes pulse-soft {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
+        }
+        .animate-status-pulse {
+            animation: pulse-soft 2s infinite ease-in-out;
+        }
+    </style>
+</head>
+<body class="text-on-surface font-body-md">
+<!-- TopNavBar -->
+<header class="fixed top-0 w-full z-50 flex justify-between items-center px-container-padding h-20 backdrop-blur-glass-blur border-b border-glass-border bg-glass-surface">
+<div class="font-headline-md text-headline-md font-bold text-primary tracking-tight">OmniParse</div>
+<nav class="hidden md:flex items-center gap-8 font-body-md text-body-md">
+<a class="text-text-secondary hover:text-primary transition-colors hover:opacity-80 active:scale-95" href="#">Platform</a>
+<a class="text-text-secondary hover:text-primary transition-colors hover:opacity-80 active:scale-95" href="#">Security</a>
+<a class="text-text-secondary hover:text-primary transition-colors hover:opacity-80 active:scale-95" href="#">Pricing</a>
+<a class="text-text-secondary hover:text-primary transition-colors hover:opacity-80 active:scale-95" href="#">Docs</a>
+</nav>
+<div class="flex items-center gap-4">
+<button class="text-text-secondary font-body-md hover:text-primary transition-colors">Contact Sales</button>
+<button class="bg-primary text-bg-black px-6 py-2 rounded-lg font-body-md font-bold hover:opacity-80 transition-all duration-200 active:scale-95">Sign In</button>
+</div>
+</header>
+<!-- Main Content Area -->
+<main class="relative h-screen w-full flex items-center justify-center px-container-padding overflow-hidden">
+<!-- Subtle background light effect -->
+<div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-primary/5 rounded-full blur-[120px] pointer-events-none"></div>
+<!-- Glassmorphic Panel -->
+<section class="glass-panel w-full max-w-xl rounded-xl p-10 md:p-12 z-10 flex flex-col items-center text-center">
+<h1 class="font-headline-lg text-headline-lg text-primary mb-2">Upload Document</h1>
+<p class="font-body-md text-body-md text-text-secondary mb-10">Initialize knowledge ingestion sequence.</p>
+<!-- Drag-and-Drop Zone -->
+<div class="drop-zone w-full aspect-[4/3] rounded-xl flex flex-col items-center justify-center cursor-pointer group" id="drop-zone">
+<input class="hidden" id="file-input" multiple="" type="file"/>
+<div class="mb-6 transform group-hover:scale-110 transition-transform duration-300">
+<span class="material-symbols-outlined text-[64px] text-primary glow-icon">upload_file</span>
+</div>
+<div class="flex flex-col gap-1">
+<span class="font-body-lg text-body-lg text-primary">Drop files here or browse</span>
+<span class="font-label-md text-label-md text-text-secondary uppercase tracking-widest opacity-60">Supports PDF, MD, TXT, CSV</span>
+</div>
+</div>
+<!-- Status Area -->
+<div class="mt-8 flex flex-col items-center gap-2">
+<div class="flex items-center gap-3">
+<div class="w-1.5 h-1.5 rounded-full bg-primary animate-pulse"></div>
+<code class="font-label-md text-label-md text-text-secondary animate-status-pulse" id="status-text">Waiting for document...</code>
+</div>
+</div>
+</section>
+</main>
+<!-- Footer -->
+<footer class="fixed bottom-0 w-full py-element-gap border-t border-glass-border bg-transparent z-50">
+<div class="flex flex-col md:flex-row justify-between items-center px-container-padding max-w-7xl mx-auto w-full">
+<div class="font-label-md text-label-md text-text-secondary">
+                © 2024 OmniParse AI. Built for the local-first future.
+            </div>
+<div class="flex gap-8 mt-4 md:mt-0">
+<a class="font-label-md text-label-md text-text-secondary hover:text-tertiary transition-colors" href="#">Privacy Policy</a>
+<a class="font-label-md text-label-md text-text-secondary hover:text-tertiary transition-colors" href="#">Terms of Service</a>
+<a class="font-label-md text-label-md text-text-secondary hover:text-tertiary transition-colors flex items-center gap-1" href="#">
+<span class="w-1.5 h-1.5 rounded-full bg-green-500"></span>
+                    Status
+                </a>
+</div>
+</div>
+</footer>
+<script>
+        // Simple Interaction Logic
+        const dropZone = document.getElementById('drop-zone');
+        const fileInput = document.getElementById('file-input');
+        const statusText = document.getElementById('status-text');
+
+        dropZone.addEventListener('click', () => fileInput.click());
+
+        dropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropZone.style.borderColor = 'rgba(255, 255, 255, 0.8)';
+            dropZone.style.background = 'rgba(255, 255, 255, 0.05)';
+        });
+
+        dropZone.addEventListener('dragleave', () => {
+            dropZone.style.borderColor = '';
+            dropZone.style.background = '';
+        });
+
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.style.borderColor = '';
+            dropZone.style.background = '';
+            handleFiles(e.dataTransfer.files);
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            handleFiles(e.target.files);
+        });
+
+        function handleFiles(files) {
+            if (files.length > 0) {
+                const fileName = files[0].name;
+                statusText.innerText = `Ingesting: ${fileName.toUpperCase()}`;
+                statusText.classList.remove('animate-status-pulse');
+                statusText.classList.add('text-primary');
+                
+                // Simulated ingestion feedback
+                setTimeout(() => {
+                    statusText.innerText = `Analyzing vectors... ${Math.floor(Math.random() * 100)}%`;
+                }, 1000);
+            }
+        }
+
+        // Parallax effect on the background glow
+        document.addEventListener('mousemove', (e) => {
+            const glow = document.querySelector('.absolute.top-1/2');
+            const x = (window.innerWidth / 2 - e.pageX) / 30;
+            const y = (window.innerHeight / 2 - e.pageY) / 30;
+            glow.style.transform = `translate(calc(-50% + ${x}px), calc(-50% + ${y}px))`;
+        });
+    </script>
+</body></html>

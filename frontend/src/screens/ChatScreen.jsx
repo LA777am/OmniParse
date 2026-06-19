@@ -112,7 +112,7 @@ export default function ChatScreen() {
             {/* Main Content Grid */}
             <main className="flex-1 pt-20 flex min-h-0 gap-4 p-4 relative z-10">
                 {/* Left Panel: Document Metadata (30%) */}
-                <GlowCard customSize={true} glowColor="purple" className="hidden lg:flex flex-col w-[30%] bg-white/5 backdrop-blur-2xl shadow-2xl rounded-2xl p-6 overflow-y-auto" style={{ scrollbarWidth: 'none' }}>
+                <GlowCard customSize={true} glowColor="purple" className="hidden lg:flex flex-col w-[30%] bg-white/5 backdrop-blur-2xl shadow-2xl rounded-2xl p-6 overflow-hidden">
                     <div className="flex items-center justify-between mb-8">
                         <h2 className="text-[24px] text-white font-bold" style={{ fontFamily: 'Outfit' }}>Metadata</h2>
                         <span className="material-symbols-outlined text-gray-400">database</span>
@@ -158,17 +158,17 @@ export default function ChatScreen() {
                     </div>
                 </GlowCard>
 
-                {/* Right Panel: Chat Interface (70%) */}
-                <GlowCard customSize={true} glowColor="blue" className="flex flex-col flex-1 min-w-0 min-h-0 lg:w-[70%] bg-white/5 backdrop-blur-2xl shadow-2xl rounded-2xl relative overflow-hidden">
+                {/* Right Panel: Chat Interface — plain div so touchAction:none from GlowCard doesn't block scroll */}
+                <div className="flex-1 min-w-0 min-h-0 lg:w-[70%] rounded-2xl relative flex flex-col" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(24px)', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.8)' }}>
                     
                     {/* Chat Background Overlay */}
-                    <div className="absolute inset-0 z-0 pointer-events-none">
+                    <div className="absolute inset-0 z-0 pointer-events-none rounded-2xl overflow-hidden">
                         <div className="absolute inset-0 bg-[radial-gradient(circle_560px_at_50%_200px,rgba(249,115,22,0.08),transparent)]" />
                         <Noise patternRefreshInterval={2} patternAlpha={8} />
                     </div>
 
-                    {/* Messages Area */}
-                    <div ref={chatContainerRef} className="flex-1 overflow-y-auto p-6 space-y-6 pb-48 relative z-10" style={{ scrollbarWidth: 'none' }}>
+                    {/* Messages Area - scrollable */}
+                    <div ref={chatContainerRef} className="flex-1 overflow-y-auto p-6 space-y-6 relative z-10" style={{ scrollbarWidth: 'thin', scrollbarColor: 'rgba(255,255,255,0.2) transparent', paddingBottom: '200px' }}>
                         {/* Static AI Message */}
                         <div className="flex flex-col items-start max-w-[85%] animate-in fade-in slide-in-from-bottom-2 duration-500">
                             <div className="p-4 rounded-2xl rounded-tl-none bg-white/5 backdrop-blur-md border border-white/10">
@@ -234,7 +234,7 @@ export default function ChatScreen() {
                                 )}
                             </AnimatePresence>
 
-                            <div className="w-full relative bg-[#E5E7EB] rounded-2xl border border-gray-300 shadow-2xl overflow-hidden mt-4">
+                            <div className="w-full relative bg-[#121212] rounded-2xl border border-white/10 shadow-2xl overflow-hidden mt-4">
                                 <div className="p-2">
                                     <Textarea
                                         ref={textareaRef}
@@ -246,12 +246,12 @@ export default function ChatScreen() {
                                         onKeyDown={handleKeyDown}
                                         placeholder="Query the document..."
                                         containerClassName="w-full"
-                                        className="w-full px-4 py-3 resize-none bg-transparent border-none text-gray-900 text-sm focus:outline-none placeholder:text-gray-500 min-h-[60px]"
+                                        className="w-full px-4 py-3 resize-none bg-transparent border-none text-white/90 text-sm focus:outline-none placeholder:text-gray-500 min-h-[60px]"
                                         style={{ overflow: "hidden", fontFamily: 'Outfit' }}
                                         showRing={false}
                                     />
                                 </div>
-                                <div className="p-3 border-t border-gray-300 flex items-center justify-end gap-4">
+                                <div className="p-3 border-t border-white/10 flex items-center justify-end gap-4">
                                     <motion.button
                                         type="button"
                                         onClick={handleSend}
@@ -260,8 +260,8 @@ export default function ChatScreen() {
                                         disabled={isTyping || !input.trim()}
                                         className={`px-4 py-2 rounded-lg text-sm font-medium transition-all flex items-center gap-2 ${
                                             input.trim()
-                                                ? "bg-black text-white shadow-lg shadow-black/10"
-                                                : "bg-gray-300 text-gray-500"
+                                                ? "bg-white text-black shadow-lg shadow-white/10"
+                                                : "bg-white/10 text-white/40"
                                         }`}
                                     >
                                         {isTyping ? (
@@ -275,7 +275,7 @@ export default function ChatScreen() {
                             </div>
                         </div>
                     </div>
-                </GlowCard>
+                </div>{/* end chat panel */}
             </main>
 
             {/* Interactive Layer / Magenta Orb Background */}
