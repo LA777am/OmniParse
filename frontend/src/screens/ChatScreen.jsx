@@ -5,6 +5,7 @@ import { Textarea, useAutoResizeTextarea, TypingDots } from '../components/ui/ch
 import { Noise } from '../components/ui/noise';
 import { SendIcon, LoaderIcon } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import PDFViewerPane from '../components/pdf/PDFViewerPane';
 
 export default function ChatScreen() {
     const { document_id } = useParams();
@@ -12,6 +13,9 @@ export default function ChatScreen() {
     const [input, setInput] = useState("");
     const [stats, setStats] = useState(null);
     const [isTyping, setIsTyping] = useState(false);
+    const [activeHighlight, setActiveHighlight] = useState(null);
+    const [recentDocs, setRecentDocs] = useState([]);
+    const [showHistory, setShowHistory] = useState(false);
     const chatContainerRef = useRef(null);
     const navigate = useNavigate();
     
@@ -46,11 +50,24 @@ export default function ChatScreen() {
                         clearInterval(pollInterval);
                     }
                 }
-            } catch (err) {
-                console.error("Polling error", err);
+            } catch (error) {
+                console.error("Could not fetch stats:", error);
             }
         };
+
+        const fetchHistory = async () => {
+            try {
+                const res = await fetch('/api/v1/documents/');
+                const data = await res.json();
+                if (Array.isArray(data)) setRecentDocs(data);
+            } catch (error) {
+                console.error("Could not fetch recent documents:", error);
+            }
+        };
+
         fetchStats();
+        fetchHistory();
+        
         pollInterval = setInterval(fetchStats, 2000);
         return () => clearInterval(pollInterval);
     }, [document_id]);
@@ -76,7 +93,7 @@ export default function ChatScreen() {
             const aiMsg = { text: data.answer, sources: data.sources, sender: 'ai', time: 'JUST NOW' };
             setMessages(prev => [...prev, aiMsg]);
         } catch (error) {
-            const errorMsg = { text: "Error: Unable to reach the engine. " + error.message, sender: 'ai', time: 'JUST NOW' };
+            const errorMsg = { text: "System Error: Unable to reach the OmniParse engine. " + error.message, sender: 'ai', time: 'JUST NOW', isError: true };
             setMessages(prev => [...prev, errorMsg]);
         } finally {
             setIsTyping(false);
@@ -97,11 +114,52 @@ export default function ChatScreen() {
                 <div className="flex items-center gap-2">
                     <span className="text-[24px] font-bold text-white tracking-tight" style={{ fontFamily: 'Outfit' }}>OmniParse</span>
                 </div>
-                <nav className="hidden md:flex items-center gap-8">
-                    <a className="text-[16px] text-white border-b-2 border-white pb-1" href="#">Platform</a>
-                    <a className="text-[16px] text-gray-400 hover:text-white transition-colors" href="#">Security</a>
-                    <a className="text-[16px] text-gray-400 hover:text-white transition-colors" href="#">Pricing</a>
-                    <a className="text-[16px] text-gray-400 hover:text-white transition-colors" href="#">Docs</a>
+                <nav className="hidden md:flex items-center gap-8 relative">
+                    <button 
+                        onClick={() => setShowHistory(!showHistory)} 
+                        className="text-[16px] text-gray-400 hover:text-white transition-colors flex items-center gap-2"
+                    >
+                        <span className="material-symbols-outlined text-[20px]">history</span>
+                        History
+                    </button>
+                    
+                    {/* History Dropdown */}
+                    {showHistory && (
+                        <div className="absolute top-12 left-0 w-80 bg-[#121212] border border-white/10 rounded-2xl shadow-2xl overflow-hidden z-50 animate-in fade-in slide-in-from-top-2 duration-200">
+                            <div className="p-4 border-b border-white/5 bg-white/5">
+                                <h3 className="text-sm font-semibold tracking-widest uppercase text-white/80" style={{ fontFamily: 'JetBrains Mono' }}>Recent Documents</h3>
+                            </div>
+                            <div className="max-h-[60vh] overflow-y-auto p-2 custom-scrollbar">
+                                {recentDocs.length === 0 ? (
+                                    <div className="p-4 text-center text-white/40 text-sm font-mono">No history found.</div>
+                                ) : (
+                                    recentDocs.map((doc) => (
+                                        <div 
+                                            key={doc.document_id}
+                                            onClick={() => {
+                                                setShowHistory(false);
+                                                navigate(`/document/${doc.document_id}`);
+                                                window.location.reload(); // Force reload to fetch new doc
+                                            }}
+                                            className="flex flex-col gap-1 p-3 rounded-xl hover:bg-white/10 cursor-pointer transition-colors group"
+                                        >
+                                            <div className="flex items-center gap-2">
+                                                <span className="material-symbols-outlined text-white/40 group-hover:text-white/80 text-[18px]">description</span>
+                                                <span className="text-sm text-white/90 truncate font-medium" style={{ fontFamily: 'Outfit' }}>
+                                                    {doc.original_filename}
+                                                </span>
+                                            </div>
+                                            <div className="flex justify-between items-center ml-6">
+                                                <span className="text-[10px] uppercase tracking-widest font-mono" style={{ color: doc.status === 'completed' ? '#4ade80' : doc.status === 'processing' ? '#fbbf24' : '#f87171' }}>
+                                                    {doc.status}
+                                                </span>
+                                            </div>
+                                        </div>
+                                    ))
+                                )}
+                            </div>
+                        </div>
+                    )}
                 </nav>
                 <div className="flex items-center gap-4">
                     <button className="text-[12px] text-gray-400 hover:text-white transition-all duration-200 uppercase tracking-widest">Contact Sales</button>
@@ -110,56 +168,14 @@ export default function ChatScreen() {
             </header>
 
             {/* Main Content Grid */}
-            <main className="flex-1 pt-20 flex min-h-0 gap-4 p-4 relative z-10">
-                {/* Left Panel: Document Metadata (30%) */}
-                <GlowCard customSize={true} glowColor="purple" className="hidden lg:flex flex-col w-[30%] bg-white/5 backdrop-blur-2xl shadow-2xl rounded-2xl p-6 overflow-hidden">
-                    <div className="flex items-center justify-between mb-8">
-                        <h2 className="text-[24px] text-white font-bold" style={{ fontFamily: 'Outfit' }}>Metadata</h2>
-                        <span className="material-symbols-outlined text-gray-400">database</span>
-                    </div>
+            <main className="flex-1 pt-20 flex min-h-0 gap-4 p-4 relative z-10 w-full max-w-[1600px] mx-auto">
+                {/* Left Panel: PDF Viewer (50%) */}
+                <div className="hidden lg:flex w-[50%] h-full">
+                    <PDFViewerPane pdfUrl={stats?.pdf_url} activeHighlight={activeHighlight} />
+                </div>
 
-                    {/* File Header */}
-                    <div className="mb-8 p-4 rounded-xl bg-white/5 border border-white/5">
-                        <p className="text-[12px] text-gray-400 mb-1 uppercase tracking-widest font-semibold" style={{ fontFamily: 'JetBrains Mono' }}>CURRENT DOCUMENT</p>
-                        <div className="flex items-center gap-3">
-                            <span className="material-symbols-outlined text-white">description</span>
-                            <span className="text-[14px] text-white truncate" style={{ fontFamily: 'JetBrains Mono' }}>{stats ? stats.original_filename : 'Loading...'}</span>
-                        </div>
-                    </div>
-
-                    {/* Stats List */}
-                    <div className="space-y-6">
-                        <div>
-                            <p className="text-[12px] text-gray-400 mb-2 uppercase tracking-widest font-semibold" style={{ fontFamily: 'JetBrains Mono' }}>Extraction Stats</p>
-                            <div className="space-y-3">
-                                <div className="flex justify-between items-center py-2 border-b border-white/5">
-                                    <span className="text-[14px] text-gray-400">Status</span>
-                                    <span className="text-[14px] text-white uppercase" style={{ fontFamily: 'JetBrains Mono', color: stats && stats.status === 'completed' ? '#4ade80' : 'inherit' }}>{stats ? stats.status : 'N/A'}</span>
-                                </div>
-                                <div className="flex justify-between items-center py-2 border-b border-white/5">
-                                    <span className="text-[14px] text-gray-400">Chunks</span>
-                                    <span className="text-[14px] text-white" style={{ fontFamily: 'JetBrains Mono' }}>{stats ? stats.total_chunks : 0}</span>
-                                </div>
-                                <div className="flex justify-between items-center py-2 border-b border-white/5">
-                                    <span className="text-[14px] text-gray-400">Pages</span>
-                                    <span className="text-[14px] text-white" style={{ fontFamily: 'JetBrains Mono' }}>{stats ? stats.total_pages : 0}</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Visual Context Indicator */}
-                    <div className="mt-auto pt-8">
-                        <div className="relative w-full h-32 rounded-lg overflow-hidden border border-white/10">
-                            <div className="absolute inset-0 flex items-center justify-center">
-                                <span className="text-[12px] text-white font-semibold bg-black/40 px-3 py-1 rounded-full backdrop-blur-sm tracking-wide">RAG Engine Active</span>
-                            </div>
-                        </div>
-                    </div>
-                </GlowCard>
-
-                {/* Right Panel: Chat Interface — plain div so touchAction:none from GlowCard doesn't block scroll */}
-                <div className="flex-1 min-w-0 min-h-0 lg:w-[70%] rounded-2xl relative flex flex-col" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(24px)', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.8)' }}>
+                {/* Right Panel: Chat Interface (50%) */}
+                <div className="flex-1 min-w-0 min-h-0 lg:w-[50%] rounded-2xl relative flex flex-col" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(24px)', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.8)' }}>
                     
                     {/* Chat Background Overlay */}
                     <div className="absolute inset-0 z-0 pointer-events-none rounded-2xl overflow-hidden">
@@ -189,6 +205,17 @@ export default function ChatScreen() {
                                     </div>
                                     <span className="text-[10px] text-gray-400 mt-2 mr-1 uppercase tracking-widest font-semibold" style={{ fontFamily: 'JetBrains Mono' }}>YOU • {msg.time}</span>
                                 </div>
+                            ) : msg.isError ? (
+                                <div key={idx} className="flex flex-col items-start max-w-[85%] animate-in fade-in slide-in-from-bottom-2 duration-300">
+                                    <div className="p-4 rounded-2xl rounded-tl-none bg-red-500/10 backdrop-blur-md border border-red-500/20">
+                                        <div className="flex items-center gap-2 mb-2">
+                                            <span className="material-symbols-outlined text-red-400 text-sm">warning</span>
+                                            <span className="text-[12px] text-red-400 font-semibold tracking-wide uppercase" style={{ fontFamily: 'Outfit' }}>Processing Error</span>
+                                        </div>
+                                        <p className="text-[14px] text-red-200/90 leading-relaxed font-light" style={{ fontFamily: 'JetBrains Mono' }}>{msg.text}</p>
+                                    </div>
+                                    <span className="text-[10px] text-red-500/50 mt-2 ml-1 uppercase tracking-widest font-semibold" style={{ fontFamily: 'JetBrains Mono' }}>SYSTEM • {msg.time}</span>
+                                </div>
                             ) : (
                                 <div key={idx} className="flex flex-col items-start max-w-[85%] animate-in fade-in slide-in-from-bottom-2 duration-300">
                                     <div className="p-4 rounded-2xl rounded-tl-none bg-white/5 backdrop-blur-md border border-white/10">
@@ -198,7 +225,12 @@ export default function ChatScreen() {
                                                 <p className="text-[10px] text-gray-400 mb-1 font-semibold tracking-widest uppercase">Sources</p>
                                                 <div className="flex flex-wrap gap-1">
                                                     {msg.sources.map((s, i) => (
-                                                        <span key={i} className="px-1.5 py-0.5 bg-white/10 rounded text-[9px] text-gray-300 border border-white/5 font-mono">
+                                                        <span 
+                                                            key={i} 
+                                                            onMouseEnter={() => setActiveHighlight(s)}
+                                                            onClick={() => setActiveHighlight(s)}
+                                                            className="cursor-pointer hover:bg-white/20 hover:border-white/20 transition-all px-1.5 py-0.5 bg-white/10 rounded text-[9px] text-gray-300 border border-white/5 font-mono"
+                                                        >
                                                             {s.page_number ? `Page ${s.page_number}` : `Chunk ${i}`}
                                                         </span>
                                                     ))}

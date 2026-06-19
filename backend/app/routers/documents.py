@@ -24,6 +24,22 @@ from app.services.llm import generate_answer
 router = APIRouter(prefix="/documents", tags=["Documents"])
 db = get_async_db()
 
+@router.get("/")
+async def list_documents():
+    """Retrieve the 10 most recent document ingestion tasks."""
+    cursor = db.ingestion_tasks.find().sort("created_at", -1).limit(10)
+    tasks = await cursor.to_list(length=10)
+    
+    return [
+        {
+            "document_id": t.get("document_id"),
+            "original_filename": t.get("original_filename"),
+            "status": t.get("status"),
+            "created_at": t.get("created_at")
+        }
+        for t in tasks
+    ]
+
 @router.post("/upload", status_code=202)
 async def upload_document(
     file: UploadFile = File(...),
@@ -129,4 +145,5 @@ async def get_document_stats(document_id: str):
             } for stat in chunk_stats
         },
         "created_at": task.get("created_at"),
+        "pdf_url": f"/api/v1/uploads/{task.get('task_id')}.pdf" if task.get("task_id") else None,
     }

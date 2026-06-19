@@ -36,7 +36,7 @@ async def find_similar_chunks(db, document_id: str, query: str, top_k: int = 5) 
     # 2. Fetch all chunks for the document from MongoDB
     cursor = db.document_chunks.find(
         {"document_id": document_id},
-        {"_id": 0, "chunk_text": 1, "page_number": 1, "embedding_vector": 1}
+        {"_id": 0, "chunk_text": 1, "page_number": 1, "embedding_vector": 1, "spatial_coordinates": 1, "page_dimensions": 1}
     )
     chunks = await cursor.to_list(length=None)
     
@@ -58,8 +58,10 @@ async def find_similar_chunks(db, document_id: str, query: str, top_k: int = 5) 
         chunk_data = chunks[idx]
         best_chunks.append({
             "text": chunk_data["chunk_text"],
-            "page": chunk_data.get("page_number", 0),
-            "score": float(score)
+            "page_number": chunk_data.get("page_number", 0),
+            "score": float(score),
+            "spatial_coordinates": chunk_data.get("spatial_coordinates"),
+            "page_dimensions": chunk_data.get("page_dimensions")
         })
         
     return best_chunks

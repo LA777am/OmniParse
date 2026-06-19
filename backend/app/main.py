@@ -71,8 +71,8 @@ app.include_router(documents.router, prefix="/api/v1")
 app.include_router(tasks.router, prefix="/api/v1")
 
 # ── Static file serving for uploaded PDFs ──
-# Allows the React frontend to fetch PDFs at /uploads/{filename}
-app.mount("/uploads", StaticFiles(directory=str(settings.upload_path)), name="uploads")
+# Allows the React frontend to fetch PDFs at /api/v1/uploads/{filename} (reusing the /api proxy)
+app.mount("/api/v1/uploads", StaticFiles(directory=str(settings.upload_path)), name="uploads")
 
 
 # ── Health Check ──
