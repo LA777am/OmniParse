@@ -15,11 +15,12 @@ from datetime import datetime
 from slugify import slugify
 
 from app.config import settings
-from app.database import db
+from app.database import get_async_db
 from app.services.parser import extract_chunks_with_coordinates
 from app.services.embeddings import generate_embeddings_batch
 
 router = APIRouter(prefix="/documents", tags=["Documents"])
+db = get_async_db()
 
 @router.post("/upload", status_code=202)
 async def upload_document(
@@ -54,35 +55,12 @@ async def upload_document(
     }
     await db.ingestion_tasks.insert_one(task_record)
     
-    try:
-        # Sprint 2: Synchronous extraction
-        chunks = extract_chunks_with_coordinates(str(file_path), document_id)
-        enriched_chunks = generate_embeddings_batch(chunks)
-        
-        if enriched_chunks:
-            await db.document_chunks.insert_many(enriched_chunks, ordered=False)
-            
-        await db.ingestion_tasks.update_one(
-            {"task_id": task_id},
-            {"$set": {
-                "status": "completed",
-                "chunk_count": len(enriched_chunks),
-                "updated_at": datetime.utcnow(),
-            }}
-        )
-        
-        return {"task_id": task_id, "document_id": document_id, "status": "completed"}
-        
-    except Exception as exc:
-        await db.ingestion_tasks.update_one(
-            {"task_id": task_id},
-            {"$set": {
-                "status": "failed",
-                "error_log": str(exc),
-                "updated_at": datetime.utcnow(),
-            }}
-        )
-        raise HTTPException(status_code=500, detail=f"Parsing failed: {str(exc)}")
+    from app.worker.tasks import process_document
+    
+    # Sprint 3: Asynchronous dispatch to Celery
+    process_document.delay(task_id, str(file_path), document_id)
+    
+    return {"task_id": task_id, "document_id": document_id, "status": "processing"}
 
 @router.post("/{document_id}/query")
 async def query_document(document_id: str):
