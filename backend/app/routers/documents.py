@@ -13,11 +13,13 @@ from fastapi import APIRouter, File, UploadFile, Form, HTTPException, status
 from uuid import uuid4
 from datetime import datetime
 from slugify import slugify
+from pydantic import BaseModel
 
 from app.config import settings
 from app.database import get_async_db
 from app.services.parser import extract_chunks_with_coordinates
-from app.services.embeddings import generate_embeddings_batch
+from app.services.embeddings import generate_embeddings_batch, find_similar_chunks
+from app.services.llm import generate_answer
 
 router = APIRouter(prefix="/documents", tags=["Documents"])
 db = get_async_db()
@@ -62,10 +64,32 @@ async def upload_document(
     
     return {"task_id": task_id, "document_id": document_id, "status": "processing"}
 
+class QueryRequest(BaseModel):
+    query: str
+    top_k: int = 5
+
 @router.post("/{document_id}/query")
-async def query_document(document_id: str):
+async def query_document(document_id: str, req: QueryRequest):
     """Semantic search + LLM answer generation. (Sprint 4)"""
-    return {"message": f"Query endpoint for {document_id} — implemented in Sprint 4"}
+    # 1. Ensure document exists and is completely processed
+    task = await db.ingestion_tasks.find_one({"document_id": document_id})
+    if not task:
+        raise HTTPException(status_code=404, detail="Document not found.")
+    if task.get("status") != "completed":
+        raise HTTPException(status_code=400, detail="Document is still processing or failed.")
+        
+    # 2. Find similar chunks using exact KNN vector search
+    best_chunks = await find_similar_chunks(db, document_id, req.query, req.top_k)
+    if not best_chunks:
+        return {"answer": "No relevant text found in the document.", "sources": []}
+        
+    # 3. Generate answer using Gemini 2.5 Flash
+    answer = await generate_answer(req.query, best_chunks)
+    
+    return {
+        "answer": answer,
+        "sources": best_chunks
+    }
 
 @router.get("/{document_id}/stats")
 async def get_document_stats(document_id: str):

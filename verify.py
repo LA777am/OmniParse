@@ -31,15 +31,50 @@ print(f"   ✅ Upload successful! (Took {elapsed:.2f} seconds)")
 print(f"   Task ID: {result['task_id']}")
 print(f"   Document ID: {result['document_id']}\n")
 
-print("3. Querying MongoDB for Extracted Chunk Statistics...")
-stats_resp = requests.get(f"{API_URL}/documents/{result['document_id']}/stats")
+document_id = result['document_id']
 
-if stats_resp.status_code == 200:
-    stats = stats_resp.json()
-    print("   ✅ MongoDB Verification Successful! Here is what was extracted:")
-    print(json.dumps(stats, indent=4))
+print("3. Waiting for Celery worker to finish processing...")
+max_retries = 15
+for attempt in range(max_retries):
+    stats_resp = requests.get(f"{API_URL}/documents/{document_id}/stats")
+    if stats_resp.status_code == 200:
+        stats = stats_resp.json()
+        if stats.get("status") == "completed":
+            print("   ✅ MongoDB Verification Successful! Here is what was extracted:")
+            print(json.dumps(stats, indent=4))
+            break
+        elif stats.get("status") == "failed":
+            print(f"   ❌ Task failed: {stats.get('error_log')}")
+            exit(1)
+        else:
+            print(f"   ... still processing (attempt {attempt+1}/{max_retries})")
+            time.sleep(2)
+    else:
+        print(f"❌ Stats query failed: {stats_resp.status_code} - {stats_resp.text}")
+        exit(1)
 else:
-    print(f"❌ Stats query failed: {stats_resp.status_code} - {stats_resp.text}")
+    print("❌ Timeout waiting for document to finish processing.")
+    exit(1)
+
+# ---------------------------------------------------------
+# STEP 4: Test Vector Search + LLM Query
+# ---------------------------------------------------------
+print("\n4. Testing Vector Search + LLM Generation (Sprint 4)...")
+query_text = "What is the primary topic of this document?"
+print(f"   Query: '{query_text}'")
+
+query_payload = {"query": query_text, "top_k": 3}
+query_resp = requests.post(f"{API_URL}/documents/{document_id}/query", json=query_payload)
+
+if query_resp.status_code == 200:
+    print("   ✅ LLM Query Successful! Response:")
+    result = query_resp.json()
+    print(f"\n--- Answer ---\n{result.get('answer')}")
+    print(f"\n--- Sources Retrieved ---")
+    for i, src in enumerate(result.get('sources', [])):
+        print(f"  [{i+1}] (Page {src.get('page')}, Score: {src.get('score'):.3f}): {src.get('text')[:100]}...")
+else:
+    print(f"   ❌ LLM Query failed: {query_resp.status_code} - {query_resp.text}")
 
 # Cleanup
 if os.path.exists(LOCAL_PDF):
