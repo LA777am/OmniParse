@@ -6,6 +6,7 @@ import { Noise } from '../components/ui/noise';
 import { SendIcon, LoaderIcon } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import PDFViewerPane from '../components/pdf/PDFViewerPane';
+import { SignInButton, UserButton, useAuth } from '@clerk/react';
 
 export default function ChatScreen() {
     const { document_id } = useParams();
@@ -18,6 +19,7 @@ export default function ChatScreen() {
     const [showHistory, setShowHistory] = useState(false);
     const chatContainerRef = useRef(null);
     const navigate = useNavigate();
+    const { getToken, isSignedIn } = useAuth();
     
     const { textareaRef, adjustHeight } = useAutoResizeTextarea({
         minHeight: 60,
@@ -42,7 +44,9 @@ export default function ChatScreen() {
         let pollInterval;
         const fetchStats = async () => {
             try {
-                const res = await fetch(`/api/v1/documents/${document_id}/stats`);
+                const token = await getToken();
+                const headers = token ? { 'Authorization': `Bearer ${token}` } : {};
+                const res = await fetch(`/api/v1/documents/${document_id}/stats`, { headers });
                 if (res.ok) {
                     const data = await res.json();
                     setStats(data);
@@ -56,10 +60,18 @@ export default function ChatScreen() {
         };
 
         const fetchHistory = async () => {
+            if (!isSignedIn) {
+                setRecentDocs([]);
+                return;
+            }
             try {
-                const res = await fetch('/api/v1/documents/');
-                const data = await res.json();
-                if (Array.isArray(data)) setRecentDocs(data);
+                const token = await getToken();
+                const headers = token ? { 'Authorization': `Bearer ${token}` } : {};
+                const res = await fetch('/api/v1/documents/', { headers });
+                if (res.ok) {
+                    const data = await res.json();
+                    if (Array.isArray(data)) setRecentDocs(data);
+                }
             } catch (error) {
                 console.error("Could not fetch recent documents:", error);
             }
@@ -77,16 +89,20 @@ export default function ChatScreen() {
         
         const newMsg = { text: input, sender: 'user', time: 'JUST NOW' };
         setMessages(prev => [...prev, newMsg]);
-        const currentInput = input;
+        const userMsg = newMsg;
         setInput("");
         adjustHeight(true);
         setIsTyping(true);
 
         try {
+            const token = await getToken();
+            const headers = { 'Content-Type': 'application/json' };
+            if (token) headers['Authorization'] = `Bearer ${token}`;
+
             const res = await fetch(`/api/v1/documents/${document_id}/query`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ query: currentInput, top_k: 5 })
+                headers,
+                body: JSON.stringify({ query: userMsg.text })
             });
             if (!res.ok) throw new Error('Query failed');
             const data = await res.json();
@@ -162,8 +178,22 @@ export default function ChatScreen() {
                     )}
                 </nav>
                 <div className="flex items-center gap-4">
-                    <button className="text-[12px] text-gray-400 hover:text-white transition-all duration-200 uppercase tracking-widest">Contact Sales</button>
-                    <button className="px-5 py-2 bg-white text-black rounded-lg text-[12px] font-bold hover:opacity-80 transition-all active:scale-95 uppercase tracking-widest">Sign In</button>
+                    {!isSignedIn ? (
+                        <div className="flex items-center gap-3">
+                            <span className="text-[10px] text-gray-400 hidden sm:block uppercase tracking-widest font-mono">Sign in to save history</span>
+                            <SignInButton mode="modal">
+                                <button className="px-5 py-2 bg-white text-black rounded-lg text-[12px] font-bold hover:opacity-80 transition-all active:scale-95 uppercase tracking-widest">Sign In</button>
+                            </SignInButton>
+                        </div>
+                    ) : (
+                        <UserButton 
+                            appearance={{
+                                elements: {
+                                    userButtonAvatarBox: "w-9 h-9 border border-white/20",
+                                }
+                            }}
+                        />
+                    )}
                 </div>
             </header>
 

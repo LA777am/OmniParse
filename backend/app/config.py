@@ -44,6 +44,9 @@ class Settings(BaseSettings):
     api_port: int = 8000
     cors_origins: str = '["http://localhost:5173","http://localhost:3000"]'
 
+    # ── Clerk Auth ──
+    clerk_secret_key: str = ""
+
     @property
     def max_file_size_bytes(self) -> int:
         return self.max_file_size_mb * 1024 * 1024

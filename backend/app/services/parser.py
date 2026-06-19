@@ -1,18 +1,7 @@
 import pdfplumber
 from datetime import datetime
 
-def _compute_cell_bbox(table_bbox, cells, row_idx, col_idx):
-    """
-    Approximates the bounding box of a cell given the table's grid.
-    cells is a list of rows, each containing bounding box coords for the cell.
-    """
-    try:
-        if cells and row_idx < len(cells) and cells[row_idx] and col_idx < len(cells[row_idx]):
-            cell = cells[row_idx][col_idx]
-            if isinstance(cell, (tuple, list)) and len(cell) == 4:
-                return cell
-    except Exception:
-        pass
+def _compute_table_bbox(table_bbox):
     return table_bbox
 
 def _word_in_any_table(word, table_bboxes):
@@ -81,29 +70,32 @@ def extract_chunks_with_coordinates(file_path: str, document_id: str) -> list[di
                 extracted = table.extract()
                 if not extracted:
                     continue
-                for row_idx, row in enumerate(extracted):
-                    for col_idx, cell in enumerate(row):
-                        if cell and cell.strip():
-                            cell_bbox = _compute_cell_bbox(
-                                table.bbox, table.cells, row_idx, col_idx
-                            )
-                            chunks.append({
-                                "document_id": document_id,
-                                "page_number": page_num,
-                                "page_dimensions": {
-                                    "width": float(page_width),
-                                    "height": float(page_height),
-                                },
-                                "chunk_text": cell.strip(),
-                                "chunk_type": "table_cell",
-                                "spatial_coordinates": {
-                                    "x0": round(cell_bbox[0], 2),
-                                    "y0": round(cell_bbox[1], 2),
-                                    "x1": round(cell_bbox[2], 2),
-                                    "y1": round(cell_bbox[3], 2),
-                                },
-                                "created_at": datetime.utcnow(),
-                            })
+                
+                # Format the table as a Markdown string
+                markdown_rows = []
+                for row in extracted:
+                    cleaned_row = [str(cell).replace('\n', ' ').strip() if cell else "" for cell in row]
+                    markdown_rows.append("| " + " | ".join(cleaned_row) + " |")
+                
+                markdown_table = "[TABLE DATA]\n" + "\n".join(markdown_rows)
+                
+                chunks.append({
+                    "document_id": document_id,
+                    "page_number": page_num,
+                    "page_dimensions": {
+                        "width": float(page_width),
+                        "height": float(page_height),
+                    },
+                    "chunk_text": markdown_table,
+                    "chunk_type": "table",
+                    "spatial_coordinates": {
+                        "x0": round(table.bbox[0], 2),
+                        "y0": round(table.bbox[1], 2),
+                        "x1": round(table.bbox[2], 2),
+                        "y1": round(table.bbox[3], 2),
+                    },
+                    "created_at": datetime.utcnow(),
+                })
             
             # --- PARAGRAPH EXTRACTION ---
             # Extract words, excluding regions already captured as tables

@@ -23,3 +23,7 @@ sentence-transformers==3.4.1
 pydantic-settings==2.9.1
 python-dotenv==1.1.0
 python-slugify==8.0.4
+
+PyJWT
+cryptography
+httpx

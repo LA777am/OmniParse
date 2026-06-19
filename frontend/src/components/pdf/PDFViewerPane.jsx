@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, memo } from 'react';
 import { Document, Page, pdfjs } from 'react-pdf';
 import 'react-pdf/dist/Page/AnnotationLayer.css';
 import 'react-pdf/dist/Page/TextLayer.css';
@@ -9,7 +9,7 @@ pdfjs.GlobalWorkerOptions.workerSrc = new URL(
   import.meta.url,
 ).toString();
 
-export default function PDFViewerPane({ pdfUrl, activeHighlight }) {
+const PDFViewerPane = memo(function PDFViewerPane({ pdfUrl, activeHighlight }) {
   const [numPages, setNumPages] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [containerWidth, setContainerWidth] = useState(500);
@@ -176,4 +176,6 @@ export default function PDFViewerPane({ pdfUrl, activeHighlight }) {
 
     </div>
   );
-}
+});
+
+export default PDFViewerPane;
