@@ -101,8 +101,8 @@ function App() {
     <div className="h-screen w-screen flex flex-col bg-bg-primary overflow-hidden relative font-sans text-text-primary">
       {/* Dynamic Background Effects */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
-        <div className="absolute -top-[40%] -left-[20%] w-[800px] h-[800px] bg-accent-primary/10 rounded-full blur-[120px] mix-blend-screen animate-pulse-slow" />
-        <div className="absolute top-[60%] -right-[10%] w-[600px] h-[600px] bg-accent-dark/20 rounded-full blur-[100px] mix-blend-screen" />
+        <div className="absolute -top-[40%] -left-[20%] w-[800px] h-[800px] bg-accent-primary/10 rounded-full blur-[60px] mix-blend-screen opacity-80" />
+        <div className="absolute top-[60%] -right-[10%] w-[600px] h-[600px] bg-accent-dark/20 rounded-full blur-[50px] mix-blend-screen" />
         {/* Dot pattern */}
         <div 
           className="absolute inset-0 opacity-20" 
@@ -113,7 +113,7 @@ function App() {
       {/* App Shell content - Elevated over background */}
       <div className="relative z-10 flex flex-col h-full w-full">
         {/* ── Header ── */}
-        <header role="banner" className="flex items-center justify-between px-6 py-4 border-b border-border-subtle bg-bg-secondary/40 backdrop-blur-xl shadow-sm">
+        <header role="banner" className="flex items-center justify-between px-6 py-4 border-b border-border-subtle bg-bg-secondary/40 backdrop-blur-sm shadow-sm">
           <div className="flex items-center gap-4">
             <div className="relative group">
               <div className="absolute inset-0 bg-accent-primary blur-md opacity-40 group-hover:opacity-70 transition-opacity duration-300 rounded-lg"></div>
@@ -140,7 +140,7 @@ function App() {
           <div className="flex items-center">
             {appState === "processing" && (
               <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="flex items-center gap-2.5 px-4 py-2 rounded-full bg-status-pending/10 border border-status-pending/30 shadow-[0_0_15px_rgba(251,191,36,0.15)]">
-                <div className="w-2.5 h-2.5 rounded-full bg-status-pending animate-pulse shadow-[0_0_8px_rgba(251,191,36,0.8)]" />
+                <div className="w-2.5 h-2.5 rounded-full bg-status-pending  shadow-[0_0_8px_rgba(251,191,36,0.8)]" />
                 <span className="text-xs font-semibold text-status-pending tracking-wide">Processing</span>
               </motion.div>
             )}
@@ -253,7 +253,7 @@ function App() {
                       className="absolute inset-0 rounded-full border-4 border-accent-primary border-t-transparent shadow-[0_0_15px_rgba(99,144,191,0.3)]" 
                     />
                     <div className="absolute inset-0 flex items-center justify-center">
-                      <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6 text-accent-light animate-pulse" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
+                      <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6 text-accent-light " viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
                     </div>
                   </div>
                   
@@ -555,7 +555,7 @@ function App() {
                         initial={{ y: 50, opacity: 0 }}
                         animate={{ y: 0, opacity: 1 }}
                         exit={{ y: 50, opacity: 0 }}
-                        className="absolute bottom-12 left-4 right-4 p-4 rounded-xl bg-bg-secondary/95 border border-border-subtle backdrop-blur-xl shadow-2xl z-20 flex flex-col md:flex-row md:items-center justify-between gap-4"
+                        className="absolute bottom-12 left-4 right-4 p-4 rounded-xl bg-bg-secondary/95 border border-border-subtle backdrop-blur-sm shadow-2xl z-20 flex flex-col md:flex-row md:items-center justify-between gap-4"
                       >
                         <div className="flex-1">
                           <div className="flex items-center gap-2.5 mb-1.5">

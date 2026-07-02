@@ -109,7 +109,7 @@ export default function UploadScreen() {
       <HeroGeometric badge="OmniParse Core" title1="OmniParse" title2="AI Document Intelligence">
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', marginTop: '0rem' }}>
           <div ref={panelRef} className="w-full max-w-[480px]">
-            <GlowCard customSize={true} glowColor="purple" className="relative z-20 w-full p-8 text-center bg-black/40 backdrop-blur-3xl shadow-2xl">
+            <GlowCard customSize={true} glowColor="purple" className="relative z-20 w-full p-8 text-center bg-black/40 backdrop-blur-md shadow-2xl">
             <h2 style={{ color: 'var(--text-primary)', marginBottom: '0.5rem', fontSize: '1.4rem', fontFamily: 'Outfit' }}>Initialize Document</h2>
             <p style={{ color: 'var(--text-secondary)', marginBottom: '1.5rem', fontSize: '0.9rem' }}>Drop a PDF to begin knowledge ingestion.</p>
           

@@ -71,14 +71,14 @@ const PDFViewerPane = memo(function PDFViewerPane({ pdfUrl, activeHighlight }) {
 
   if (!pdfUrl) {
     return (
-      <div className="flex-1 rounded-3xl bg-white/5 backdrop-blur-3xl border border-white/10 p-6 flex items-center justify-center">
+      <div className="flex-1 rounded-3xl bg-white/5 backdrop-blur-md border border-white/10 p-6 flex items-center justify-center">
         <p className="text-gray-400 font-mono text-sm">Loading document...</p>
       </div>
     );
   }
 
   return (
-    <div className="flex-1 flex flex-col h-full rounded-3xl bg-white/5 backdrop-blur-3xl border border-white/10 p-4 relative overflow-hidden">
+    <div className="flex-1 flex flex-col h-full rounded-3xl bg-white/5 backdrop-blur-md border border-white/10 p-4 relative overflow-hidden">
       
       {/* Header / Controls */}
       <div className="flex items-center justify-between mb-4 px-2">
@@ -134,6 +134,7 @@ const PDFViewerPane = memo(function PDFViewerPane({ pdfUrl, activeHighlight }) {
       {/* PDF Container */}
       <div 
         ref={containerRef} 
+        data-lenis-prevent="true"
         className="flex-1 overflow-y-auto overflow-x-auto relative bg-black/20 rounded-xl"
         style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
       >
@@ -167,9 +168,10 @@ const PDFViewerPane = memo(function PDFViewerPane({ pdfUrl, activeHighlight }) {
               width={containerWidth * zoom} 
               renderTextLayer={true}
               renderAnnotationLayer={false}
-              className="shadow-2xl"
-            />
-            {renderHighlight()}
+              className="shadow-2xl relative"
+            >
+              {renderHighlight()}
+            </Page>
           </Document>
         </div>
       </div>

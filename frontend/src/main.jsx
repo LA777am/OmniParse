@@ -28,7 +28,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
           borderRadius: '0.75rem',
         },
         elements: {
-          card: "bg-black/80 backdrop-blur-2xl border border-white/10 shadow-2xl",
+          card: "bg-black/80 backdrop-blur-sm border border-white/10 shadow-2xl",
           headerTitle: "font-['Outfit'] font-bold text-white text-xl",
           headerSubtitle: "text-gray-400 font-mono text-[10px] uppercase tracking-wider",
           socialButtonsBlockButton: "border border-white/10 hover:bg-white/5 transition-colors text-white",

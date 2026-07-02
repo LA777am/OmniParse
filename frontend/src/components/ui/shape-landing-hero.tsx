@@ -119,7 +119,7 @@ function HeroGeometric({
             onMouseMove={handleMouseMove}
             onMouseLeave={handleMouseLeave}
         >
-            <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/[0.12] via-transparent to-rose-500/[0.12] blur-3xl" />
+            <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/[0.12] via-transparent to-rose-500/[0.12] blur-xl" />
 
             {/* Background shapes container — zooms with cursor */}
             <div

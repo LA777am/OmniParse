@@ -64,7 +64,7 @@ export default function StitchUploadScreen() {
     return (
         <div className="bg-black text-white font-sans min-h-screen overflow-hidden">
             {/* TopNavBar */}
-            <header className="fixed top-0 w-full z-50 flex justify-between items-center px-8 h-20 bg-white/5 backdrop-blur-2xl border-b border-white/10">
+            <header className="fixed top-0 w-full z-50 flex justify-between items-center px-8 h-20 bg-white/5 backdrop-blur-sm border-b border-white/10">
                 <div className="text-[24px] font-bold text-white tracking-tight" style={{ fontFamily: 'Outfit' }}>OmniParse</div>
                 <nav className="hidden md:flex items-center gap-8">
                     <a className="text-gray-400 hover:text-white transition-colors" href="#">Platform</a>
@@ -84,7 +84,7 @@ export default function StitchUploadScreen() {
                 <div id="background-glow" className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-white/5 rounded-full blur-[120px] pointer-events-none transition-transform duration-75"></div>
                 
                 {/* Glassmorphic Panel */}
-                <GlowCard customSize={true} glowColor="orange" className="bg-white/5 backdrop-blur-2xl shadow-[0_8px_32px_0_rgba(0,0,0,0.37)] w-full max-w-xl rounded-xl p-10 md:p-12 z-10 flex flex-col items-center text-center">
+                <GlowCard customSize={true} glowColor="orange" className="bg-white/5 backdrop-blur-sm shadow-[0_8px_32px_0_rgba(0,0,0,0.37)] w-full max-w-xl rounded-xl p-10 md:p-12 z-10 flex flex-col items-center text-center">
                     <h1 className="text-[32px] text-white font-bold mb-2 tracking-tight" style={{ fontFamily: 'Outfit' }}>Upload Document</h1>
                     <p className="text-gray-400 mb-10 text-[16px]">Initialize knowledge ingestion sequence.</p>
                     

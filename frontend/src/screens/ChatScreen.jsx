@@ -7,6 +7,8 @@ import { SendIcon, LoaderIcon } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import PDFViewerPane from '../components/pdf/PDFViewerPane';
 import { SignInButton, UserButton, useAuth } from '@clerk/react';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 
 export default function ChatScreen() {
     const { document_id } = useParams();
@@ -126,7 +128,7 @@ export default function ChatScreen() {
     return (
         <div className="bg-black text-white h-screen flex flex-col overflow-hidden">
             {/* TopNavBar */}
-            <header className="fixed top-0 w-full flex justify-between items-center px-8 h-20 z-50 bg-white/5 backdrop-blur-2xl border-b border-white/10">
+            <header className="fixed top-0 w-full flex justify-between items-center px-8 h-20 z-50 bg-white/5 backdrop-blur-sm border-b border-white/10">
                 <div className="flex items-center gap-2">
                     <span className="text-[24px] font-bold text-white tracking-tight" style={{ fontFamily: 'Outfit' }}>OmniParse</span>
                 </div>
@@ -213,11 +215,16 @@ export default function ChatScreen() {
                         <Noise patternRefreshInterval={2} patternAlpha={8} />
                     </div>
 
-                    {/* Messages Area - scrollable */}
-                    <div ref={chatContainerRef} className="flex-1 overflow-y-auto p-6 space-y-6 relative z-10" style={{ scrollbarWidth: 'thin', scrollbarColor: 'rgba(255,255,255,0.2) transparent', paddingBottom: '200px' }}>
+                    {/* Messages Area - Completely Redesigned Scroll Container */}
+                    <div 
+                        ref={chatContainerRef} 
+                        data-lenis-prevent="true"
+                        className="flex-1 overflow-y-auto overflow-x-hidden p-6 flex flex-col gap-6 relative z-10" 
+                        style={{ scrollbarWidth: 'thin', scrollbarColor: 'rgba(255,255,255,0.2) transparent' }}
+                    >
                         {/* Static AI Message */}
-                        <div className="flex flex-col items-start max-w-[85%] animate-in fade-in slide-in-from-bottom-2 duration-500">
-                            <div className="p-4 rounded-2xl rounded-tl-none bg-white/5 backdrop-blur-md border border-white/10">
+                        <div className="flex flex-col items-start max-w-[85%] animate-in fade-in slide-in-from-bottom-2 duration-300">
+                            <div className="p-4 rounded-2xl rounded-tl-none bg-white/5 backdrop-blur-sm border border-white/10">
                                 <p className="text-[16px] text-white leading-relaxed font-light" style={{ fontFamily: 'Outfit' }}>
                                     {stats && stats.status === 'completed' 
                                         ? `Hello. I have successfully parsed ${stats.original_filename}. I've indexed ${stats.total_chunks} chunks. How can I assist with your document analysis?` 
@@ -237,7 +244,7 @@ export default function ChatScreen() {
                                 </div>
                             ) : msg.isError ? (
                                 <div key={idx} className="flex flex-col items-start max-w-[85%] animate-in fade-in slide-in-from-bottom-2 duration-300">
-                                    <div className="p-4 rounded-2xl rounded-tl-none bg-red-500/10 backdrop-blur-md border border-red-500/20">
+                                    <div className="p-4 rounded-2xl rounded-tl-none bg-red-500/10 backdrop-blur-sm border border-red-500/20">
                                         <div className="flex items-center gap-2 mb-2">
                                             <span className="material-symbols-outlined text-red-400 text-sm">warning</span>
                                             <span className="text-[12px] text-red-400 font-semibold tracking-wide uppercase" style={{ fontFamily: 'Outfit' }}>Processing Error</span>
@@ -248,8 +255,8 @@ export default function ChatScreen() {
                                 </div>
                             ) : (
                                 <div key={idx} className="flex flex-col items-start max-w-[85%] animate-in fade-in slide-in-from-bottom-2 duration-300">
-                                    <div className="p-4 rounded-2xl rounded-tl-none bg-white/5 backdrop-blur-md border border-white/10">
-                                        <p className="text-[16px] text-white leading-relaxed font-light" style={{ fontFamily: 'Outfit' }}>{msg.text}</p>
+                                    <div className="p-4 rounded-2xl rounded-tl-none bg-white/5 backdrop-blur-sm border border-white/10 prose prose-invert max-w-none">
+                                        <ReactMarkdown remarkPlugins={[remarkGfm]}>{msg.text}</ReactMarkdown>
                                         {msg.sources && msg.sources.length > 0 && (
                                             <div className="mt-3 pt-3 border-t border-white/10">
                                                 <p className="text-[10px] text-gray-400 mb-1 font-semibold tracking-widest uppercase">Sources</p>
@@ -274,14 +281,14 @@ export default function ChatScreen() {
                         ))}
                     </div>
 
-                    {/* Floating Input Area */}
-                    <div className="absolute bottom-0 left-0 w-full p-4 bg-gradient-to-t from-black via-black/80 to-transparent z-20">
+                    {/* Input Area (Pinned to bottom via flex) */}
+                    <div className="w-full p-4 bg-black/40 backdrop-blur-sm border-t border-white/10 z-20 relative shrink-0">
                         <div className="max-w-4xl mx-auto relative flex flex-col items-center">
                             
                             <AnimatePresence>
                                 {isTyping && (
                                     <motion.div 
-                                        className="absolute -top-12 mx-auto backdrop-blur-2xl bg-white/[0.02] rounded-full px-4 py-2 shadow-lg border border-white/[0.05]"
+                                        className="absolute -top-12 mx-auto backdrop-blur-sm bg-white/[0.02] rounded-full px-4 py-2 shadow-lg border border-white/[0.05]"
                                         initial={{ opacity: 0, y: 10 }}
                                         animate={{ opacity: 1, y: 0 }}
                                         exit={{ opacity: 0, y: 10 }}
@@ -296,7 +303,7 @@ export default function ChatScreen() {
                                 )}
                             </AnimatePresence>
 
-                            <div className="w-full relative bg-[#121212] rounded-2xl border border-white/10 shadow-2xl overflow-hidden mt-4">
+                            <div className="w-full relative bg-[#121212] rounded-2xl border border-white/10 shadow-2xl overflow-hidden mt-2">
                                 <div className="p-2">
                                     <Textarea
                                         ref={textareaRef}
