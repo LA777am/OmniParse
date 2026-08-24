@@ -84,10 +84,59 @@ services:
       timeout: 5s
       retries: 5
 
+  # ── Observability Stack ──
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: omniparse-prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus_data:/prometheus
+    restart: unless-stopped
+
+  loki:
+    image: grafana/loki:latest
+    container_name: omniparse-loki
+    ports:
+      - "3100:3100"
+    command: -config.file=/etc/loki/local-config.yaml
+    restart: unless-stopped
+
+  promtail:
+    image: grafana/promtail:latest
+    container_name: omniparse-promtail
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./promtail/promtail-config.yml:/etc/promtail/config.yml
+    command: -config.file=/etc/promtail/config.yml
+    restart: unless-stopped
+    depends_on:
+      - loki
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: omniparse-grafana
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./grafana/datasources.yml:/etc/grafana/provisioning/datasources/datasources.yml
+    restart: unless-stopped
+    depends_on:
+      - prometheus
+      - loki
+
 volumes:
   upload_data:
     driver: local
   redis_data:
     driver: local
   mongo_data:
+    driver: local
+  prometheus_data:
+    driver: local
+  grafana_data:
     driver: local

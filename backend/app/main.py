@@ -20,6 +20,7 @@ import redis.asyncio as aioredis
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
+from prometheus_fastapi_instrumentator import Instrumentator
 
 from app.config import settings
 from app.database import check_mongodb_health, get_async_client
@@ -56,6 +57,9 @@ app = FastAPI(
     version="1.0.0",
     lifespan=lifespan,
 )
+
+# ── Metrics ──
+Instrumentator().instrument(app).expose(app)
 
 # ── CORS ──
 app.add_middleware(
