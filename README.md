@@ -1,65 +1,67 @@
-# OmniParse
+# OmniParse AI - Document Intelligence & RAG Platform
 
-OmniParse is an intelligent document parsing and querying application. It extracts text, tables, and paragraphs from PDF documents along with their spatial coordinates, generates vector embeddings, and enables users to query their documents using an LLM to receive accurate answers with citations.
+OmniParse is a distributed, intelligent document parsing and Retrieval-Augmented Generation (RAG) platform. It extracts text, tables, and paragraphs from PDF documents along with their exact spatial coordinates, generates 384-dimensional vector embeddings, and enables users to query their documents using the Gemini 2.5 Flash LLM with precise context citations.
 
-## Architecture
+## 🏗 System Architecture
 
-The project consists of a backend API and a modern web frontend.
+The project is engineered as a containerized microservices architecture orchestrated via Docker Compose, ensuring high availability, fault tolerance, and process isolation.
 
-### Backend
-- **Framework:** FastAPI
-- **Database:** MongoDB
-- **Async Tasks & Queue:** Celery with Redis
-- **Document Parsing:** pdfplumber (extracts tables and paragraphs using vertical proximity clustering and bounding boxes)
-- **Embeddings:** sentence-transformers (`all-MiniLM-L6-v2`)
+### Core Microservices
+- **API Gateway (FastAPI):** Handles HTTP connections, validates 50MB payloads, streams files to volumes, and dispatches asynchronous tasks.
+- **Message Broker (Redis):** Acts as a low-latency, in-memory queue to pass extraction payloads from the API to background workers.
+- **Background Workers (Celery):** Executes the heavy-lifting ML pipeline (spatial chunking via `pdfplumber`, PyTorch vectorization via `sentence-transformers`) with a strict **3-retry fault-tolerance protocol**.
+- **Database (MongoDB):** NoSQL document store persisting task states, parsed spatial chunks, and embeddings for in-memory k-NN vector search.
+
+### 📊 Observability & Monitoring (The LGTM Stack)
+To ensure production readiness and rapid issue resolution, the system is instrumented with an end-to-end observability stack:
+- **Prometheus:** Scrapes backend metrics (latency, throughput, error rates) via FastAPI instrumentation endpoints (`/metrics`).
+- **Loki & Promtail:** Promtail interfaces directly with the Docker daemon to aggregate and stream raw container logs from all microservices into the centralized Loki database.
+- **Grafana:** Zero-touch provisioned dashboards (exposed on port `3000`) for unified visualization of system telemetry and log aggregation.
 
 ### Frontend
 - **Framework:** React + Vite
-- **Styling:** Tailwind CSS
-- **Animations:** Framer Motion
+- **Styling & Animation:** Tailwind CSS, Framer Motion, GSAP, Lenis
 
-## Features
+## ✨ Features
 
-- **Document Upload:** Upload PDF files for processing.
-- **Data Extraction:** Accurately extracts text, tables, and bounding box coordinates for each component.
-- **Vector Search (In Progress):** Uses exact k-NN vector search for relevant document retrieval.
-- **LLM Integration (In Progress):** Query documents using Google Gemini LLM and get answers with citations referencing the specific parts of the PDF.
+- **Asynchronous Document Ingestion:** Non-blocking 50MB PDF uploads with real-time client status polling.
+- **Spatial Data Extraction:** Accurately extracts text and tables along with their absolute bounding box coordinates (`[x0, y0, x1, y1]`).
+- **Semantic RAG Engine:** Executes in-memory PyTorch cosine similarity vector searches.
+- **LLM Integration:** Context-aware Q&A using Google Gemini 2.5 Flash LLM.
 
-## Getting Started
+## 🚀 Getting Started
 
 ### Prerequisites
-- Docker and docker-compose
-- Node.js (for frontend development)
-- Python 3.9+ (for backend development)
+- Docker and Docker Compose
+- Node.js (for local frontend development)
+- Python 3.11+ (for local backend development)
 
-### Running Locally with Docker
+### Running the Entire Stack Locally
 
-You can run the entire backend stack (FastAPI, Redis, MongoDB, Celery) using docker-compose:
+You can spin up the entire distributed system (FastAPI, Redis, MongoDB, Celery, Prometheus, Loki, Promtail, Grafana) with a single command:
 
 ```bash
-docker-compose up --build
+docker-compose up --build -d
 ```
 
-### Development
+**Services Exposed:**
+- **FastAPI Backend:** `http://localhost:8000`
+- **Grafana Dashboard:** `http://localhost:3000` (Default login: `admin` / `admin`)
+- **React Frontend:** `http://localhost:5173` (If running locally via `npm run dev`)
 
-**Backend Setup:**
-1. Navigate to the `backend` directory.
-2. Install dependencies (e.g., using a virtual environment and `requirements.txt` or `pipenv` / `poetry` if configured).
-3. Copy `.env.example` to `.env` and fill in the required environment variables.
-4. Run the development server.
+### Development Setup
 
-**Frontend Setup:**
-1. Navigate to the `frontend` directory.
-2. Install dependencies:
-   ```bash
-   npm install
-   ```
-3. Run the Vite development server:
-   ```bash
-   npm run dev
-   ```
+**Backend (Local Python Env):**
+```bash
+cd backend
+pip install -r requirements.txt
+cp .env.example .env  # Add your GEMINI_API_KEY
+uvicorn app.main:app --reload
+```
 
-## Next Steps / Roadmap
-- Complete the asynchronous Celery pipeline to process documents seamlessly in the background.
-- Integrate vector search and the LLM endpoint for the query chat interface.
-- Finalize the React shell to integrate API calls and display bounding box overlays on top of the PDF.
+**Frontend:**
+```bash
+cd frontend
+npm install
+npm run dev
+```
