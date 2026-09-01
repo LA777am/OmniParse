@@ -168,8 +168,7 @@ const GlowCard: React.FC<GlowCardProps> = ({
           ${!customSize ? 'aspect-[3/4]' : ''}
           rounded-2xl 
           relative 
-          shadow-[0_1rem_2rem_-1rem_black] 
-          backdrop-blur-[5px]
+          shadow-[0_1rem_2rem_-1rem_black]
           ${className}
         `}
       >

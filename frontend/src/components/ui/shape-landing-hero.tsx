@@ -40,15 +40,7 @@ function ElegantShape({
             }}
             className={cn("absolute", className)}
         >
-            <motion.div
-                animate={{
-                    y: [0, 15, 0],
-                }}
-                transition={{
-                    duration: 12,
-                    repeat: Number.POSITIVE_INFINITY,
-                    ease: "easeInOut",
-                }}
+            <div
                 style={{
                     width,
                     height,
@@ -66,7 +58,7 @@ function ElegantShape({
                         "after:bg-[radial-gradient(circle_at_50%_50%,rgba(255,255,255,0.15),transparent_70%)]"
                     )}
                 />
-            </motion.div>
+            </div>
         </motion.div>
     );
 }
