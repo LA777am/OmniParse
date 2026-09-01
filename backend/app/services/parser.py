@@ -12,7 +12,7 @@ def _word_in_any_table(word, table_bboxes):
             return True
     return False
 
-def _group_words_into_paragraphs(words, y_gap_threshold=12.0):
+def _group_words_into_paragraphs(words, y_gap_threshold=5.0):
     """
     Groups words into paragraphs based on vertical proximity.
     Assumes words are sorted by top-to-bottom, left-to-right.
@@ -113,7 +113,7 @@ def extract_chunks_with_coordinates(file_path: str, document_id: str) -> list[di
             
             # Group words into paragraph-level chunks by vertical proximity
             paragraphs = _group_words_into_paragraphs(
-                non_table_words, y_gap_threshold=12.0
+                non_table_words, y_gap_threshold=5.0
             )
             
             for para in paragraphs:
