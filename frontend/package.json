@@ -10,8 +10,6 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@clerk/react": "^6.10.4",
-    "@clerk/themes": "^2.4.57",
     "@studio-freight/lenis": "^1.0.42",
     "@tailwindcss/typography": "^0.5.20",
     "axios": "^1.18.0",

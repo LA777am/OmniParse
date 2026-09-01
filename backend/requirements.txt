@@ -30,3 +30,4 @@ httpx
 
 # ─── Observability ───
 prometheus-fastapi-instrumentator==7.0.0
+passlib[bcrypt]==1.7.4

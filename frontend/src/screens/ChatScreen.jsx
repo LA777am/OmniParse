@@ -1,12 +1,13 @@
-import React, { useState, useRef, useEffect, useTransition } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { GlowCard } from '../components/ui/glow-card';
 import { Textarea, useAutoResizeTextarea, TypingDots } from '../components/ui/chat-input';
 import { Noise } from '../components/ui/noise';
-import { SendIcon, LoaderIcon } from 'lucide-react';
+import { SendIcon, LoaderIcon, LogOut, User } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import PDFViewerPane from '../components/pdf/PDFViewerPane';
-import { SignInButton, UserButton, useAuth } from '@clerk/react';
+import { useAuth } from '../context/AuthContext';
+import { AuthModal } from '../components/auth/AuthModal';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 
@@ -19,9 +20,11 @@ export default function ChatScreen() {
     const [activeHighlight, setActiveHighlight] = useState(null);
     const [recentDocs, setRecentDocs] = useState([]);
     const [showHistory, setShowHistory] = useState(false);
+    const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+    
     const chatContainerRef = useRef(null);
     const navigate = useNavigate();
-    const { getToken, isSignedIn } = useAuth();
+    const { user, token, logout } = useAuth();
     
     const { textareaRef, adjustHeight } = useAutoResizeTextarea({
         minHeight: 60,
@@ -46,7 +49,6 @@ export default function ChatScreen() {
         let pollInterval;
         const fetchStats = async () => {
             try {
-                const token = await getToken();
                 const headers = token ? { 'Authorization': `Bearer ${token}` } : {};
                 const res = await fetch(`/api/v1/documents/${document_id}/stats`, { headers });
                 if (res.ok) {
@@ -62,12 +64,11 @@ export default function ChatScreen() {
         };
 
         const fetchHistory = async () => {
-            if (!isSignedIn) {
+            if (!user) {
                 setRecentDocs([]);
                 return;
             }
             try {
-                const token = await getToken();
                 const headers = token ? { 'Authorization': `Bearer ${token}` } : {};
                 const res = await fetch('/api/v1/documents/', { headers });
                 if (res.ok) {
@@ -84,7 +85,7 @@ export default function ChatScreen() {
         
         pollInterval = setInterval(fetchStats, 2000);
         return () => clearInterval(pollInterval);
-    }, [document_id]);
+    }, [document_id, user, token]);
 
     const handleSend = async () => {
         if (!input.trim() || isTyping) return;
@@ -97,7 +98,6 @@ export default function ChatScreen() {
         setIsTyping(true);
 
         try {
-            const token = await getToken();
             const headers = { 'Content-Type': 'application/json' };
             if (token) headers['Authorization'] = `Bearer ${token}`;
 
@@ -127,10 +127,12 @@ export default function ChatScreen() {
 
     return (
         <div className="bg-black text-white h-screen flex flex-col overflow-hidden">
+            <AuthModal isOpen={isAuthModalOpen} onClose={() => setIsAuthModalOpen(false)} />
+            
             {/* TopNavBar */}
             <header className="fixed top-0 w-full flex justify-between items-center px-8 h-20 z-50 bg-white/5 backdrop-blur-sm border-b border-white/10">
                 <div className="flex items-center gap-2">
-                    <span className="text-[24px] font-bold text-white tracking-tight" style={{ fontFamily: 'Outfit' }}>OmniParse</span>
+                    <span onClick={() => navigate('/')} className="cursor-pointer text-[24px] font-bold text-white tracking-tight" style={{ fontFamily: 'Outfit' }}>OmniParse</span>
                 </div>
                 <nav className="hidden md:flex items-center gap-8 relative">
                     <button 
@@ -157,7 +159,7 @@ export default function ChatScreen() {
                                             onClick={() => {
                                                 setShowHistory(false);
                                                 navigate(`/document/${doc.document_id}`);
-                                                window.location.reload(); // Force reload to fetch new doc
+                                                window.location.reload();
                                             }}
                                             className="flex flex-col gap-1 p-3 rounded-xl hover:bg-white/10 cursor-pointer transition-colors group"
                                         >
@@ -180,21 +182,32 @@ export default function ChatScreen() {
                     )}
                 </nav>
                 <div className="flex items-center gap-4">
-                    {!isSignedIn ? (
+                    {!user ? (
                         <div className="flex items-center gap-3">
                             <span className="text-[10px] text-gray-400 hidden sm:block uppercase tracking-widest font-mono">Sign in to save history</span>
-                            <SignInButton mode="modal">
-                                <button className="px-5 py-2 bg-white text-black rounded-lg text-[12px] font-bold hover:opacity-80 transition-all active:scale-95 uppercase tracking-widest">Sign In</button>
-                            </SignInButton>
+                            <button 
+                              onClick={() => setIsAuthModalOpen(true)}
+                              className="px-5 py-2 bg-white text-black rounded-lg text-[12px] font-bold hover:opacity-80 transition-all active:scale-95 uppercase tracking-widest"
+                            >
+                              Sign In
+                            </button>
                         </div>
                     ) : (
-                        <UserButton 
-                            appearance={{
-                                elements: {
-                                    userButtonAvatarBox: "w-9 h-9 border border-white/20",
-                                }
-                            }}
-                        />
+                        <div className="flex items-center gap-4">
+                            <div className="flex items-center gap-2 bg-white/5 border border-white/10 px-3 py-1.5 rounded-full">
+                              <div className="w-6 h-6 rounded-full bg-white/10 flex items-center justify-center">
+                                <User size={14} className="text-white/70" />
+                              </div>
+                              <span className="text-xs text-white/80 font-mono truncate max-w-[120px]">{user.email}</span>
+                            </div>
+                            <button 
+                              onClick={logout}
+                              className="p-2 text-white/50 hover:text-white hover:bg-white/10 rounded-full transition-colors"
+                              title="Log out"
+                            >
+                              <LogOut size={16} />
+                            </button>
+                        </div>
                     )}
                 </div>
             </header>

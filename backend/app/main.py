@@ -24,7 +24,7 @@ from prometheus_fastapi_instrumentator import Instrumentator
 
 from app.config import settings
 from app.database import check_mongodb_health, get_async_client
-from app.routers import documents, tasks
+from app.routers import documents, tasks, auth
 
 
 # Track server boot time for uptime reporting
@@ -71,6 +71,7 @@ app.add_middleware(
 )
 
 # ── Routers ──
+app.include_router(auth.router)
 app.include_router(documents.router, prefix="/api/v1")
 app.include_router(tasks.router, prefix="/api/v1")
 

@@ -1,20 +1,22 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { UploadCloud } from 'lucide-react';
+import React, { useState, useRef } from 'react';
+import { UploadCloud, LogOut, User } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import gsap from 'gsap';
 import { HeroGeometric } from '../components/ui/shape-landing-hero';
 import { GlowCard } from '../components/ui/glow-card';
-import { SignInButton, UserButton, useAuth } from '@clerk/react';
+import { useAuth } from '../context/AuthContext';
+import { AuthModal } from '../components/auth/AuthModal';
 
 export default function UploadScreen() {
   const [isDragging, setIsDragging] = useState(false);
   const [status, setStatus] = useState('Waiting for document...');
   const [isUploading, setIsUploading] = useState(false);
   const [progress, setProgress] = useState(0);
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  
   const panelRef = useRef(null);
   const fileInputRef = useRef(null);
   const navigate = useNavigate();
-  const { getToken, isSignedIn } = useAuth();
+  const { user, token, logout } = useAuth();
 
   const handleDragOver = (e) => { e.preventDefault(); setIsDragging(true); };
   const handleDragLeave = () => setIsDragging(false);
@@ -49,7 +51,6 @@ export default function UploadScreen() {
     }, 300);
 
     try {
-      const token = await getToken();
       const headers = {};
       if (token) headers['Authorization'] = `Bearer ${token}`;
 
@@ -82,26 +83,39 @@ export default function UploadScreen() {
 
   return (
     <>
+      <AuthModal isOpen={isAuthModalOpen} onClose={() => setIsAuthModalOpen(false)} />
+      
       <header className="fixed top-0 w-full flex justify-between items-center px-8 h-20 z-50 bg-transparent">
         <div className="flex items-center gap-2">
             <span className="text-[24px] font-bold text-white tracking-tight" style={{ fontFamily: 'Outfit' }}>OmniParse</span>
         </div>
         <div className="flex items-center gap-4">
-            {!isSignedIn ? (
+            {!user ? (
                 <div className="flex items-center gap-3">
                     <span className="text-[10px] text-gray-400 hidden sm:block uppercase tracking-widest font-mono">Sign in to save history</span>
-                    <SignInButton mode="modal">
-                        <button className="px-5 py-2 bg-white text-black rounded-lg text-[12px] font-bold hover:opacity-80 transition-all active:scale-95 uppercase tracking-widest">Sign In</button>
-                    </SignInButton>
+                    <button 
+                      onClick={() => setIsAuthModalOpen(true)}
+                      className="px-5 py-2 bg-white text-black rounded-lg text-[12px] font-bold hover:opacity-80 transition-all active:scale-95 uppercase tracking-widest"
+                    >
+                      Sign In
+                    </button>
                 </div>
             ) : (
-                <UserButton 
-                    appearance={{
-                        elements: {
-                            userButtonAvatarBox: "w-9 h-9 border border-white/20",
-                        }
-                    }}
-                />
+                <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-2 bg-white/5 border border-white/10 px-3 py-1.5 rounded-full">
+                      <div className="w-6 h-6 rounded-full bg-white/10 flex items-center justify-center">
+                        <User size={14} className="text-white/70" />
+                      </div>
+                      <span className="text-xs text-white/80 font-mono truncate max-w-[120px]">{user.email}</span>
+                    </div>
+                    <button 
+                      onClick={logout}
+                      className="p-2 text-white/50 hover:text-white hover:bg-white/10 rounded-full transition-colors"
+                      title="Log out"
+                    >
+                      <LogOut size={16} />
+                    </button>
+                </div>
             )}
         </div>
       </header>

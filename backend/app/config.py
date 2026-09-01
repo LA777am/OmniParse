@@ -44,8 +44,10 @@ class Settings(BaseSettings):
     api_port: int = 8000
     cors_origins: str = '["http://localhost:5173","http://localhost:3000"]'
 
-    # ── Clerk Auth ──
-    clerk_secret_key: str = ""
+    # ── JWT Auth ──
+    jwt_secret_key: str = "your-super-secret-jwt-key-replace-in-production"
+    jwt_algorithm: str = "HS256"
+    jwt_expire_minutes: int = 10080 # 7 days
 
     @property
     def max_file_size_bytes(self) -> int:
