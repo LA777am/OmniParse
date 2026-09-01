@@ -66,11 +66,5 @@ export const Noise: React.FC<NoiseProps> = ({
     };
   }, [patternSize, patternScaleX, patternScaleY, patternRefreshInterval, patternAlpha]);
 
-  return (
-    <canvas
-      ref={grainRef}
-      className="pointer-events-none absolute inset-0 z-0"
-      style={{ imageRendering: "pixelated" }}
-    />
-  );
+  return null;
 };
