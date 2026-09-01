@@ -136,6 +136,15 @@ export default function ChatScreen() {
                 </div>
                 <nav className="hidden md:flex items-center gap-8 relative">
                     <button 
+                        onClick={() => navigate('/')} 
+                        className="text-[14px] px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg transition-all flex items-center gap-2 border border-white/10"
+                        style={{ fontFamily: 'Outfit' }}
+                    >
+                        <span className="material-symbols-outlined text-[18px]">add</span>
+                        Scan New Document
+                    </button>
+                    
+                    <button 
                         onClick={() => setShowHistory(!showHistory)} 
                         className="text-[16px] text-gray-400 hover:text-white transition-colors flex items-center gap-2"
                     >
