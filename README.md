@@ -1,5 +1,12 @@
 # OmniParse AI - Document Intelligence & RAG Platform
 
+![Docker](https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white)
+![FastAPI](https://img.shields.io/badge/FastAPI-005571?style=for-the-badge&logo=fastapi)
+![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)
+![MongoDB](https://img.shields.io/badge/MongoDB-4EA94B?style=for-the-badge&logo=mongodb&logoColor=white)
+![Redis](https://img.shields.io/badge/redis-%23DD0031.svg?style=for-the-badge&logo=redis&logoColor=white)
+![Grafana](https://img.shields.io/badge/grafana-%23F46800.svg?style=for-the-badge&logo=grafana&logoColor=white)
+
 OmniParse is a distributed, intelligent document parsing and Retrieval-Augmented Generation (RAG) platform. It extracts text, tables, and paragraphs from PDF documents along with their exact spatial coordinates, generates 384-dimensional vector embeddings, and enables users to query their documents using the Gemini 2.5 Flash LLM with precise context citations.
 
 ## 🏗 System Architecture
